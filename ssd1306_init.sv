@@ -1,9 +1,6 @@
 `default_nettype none
 
 module ssd1306_init
-#(
-    parameter ssd1306_init_file = "ssd1306_init_sequence.mif"
-)
 (
     input clk_in,
     input reset,        // also triggers init / reinit
@@ -22,26 +19,43 @@ module ssd1306_init
     output oled_dc
 );
 
-// ROM memory for init commands
-reg [7:0] commands[0:3];
-initial begin
-    $readmemh(ssd1306_init_file, commands);
-end
+reg [4:0] rom_index = 4'h00;
+wire [8:0] rom_data;
+wire rom_last;
 
+ssd1306_init_rom rom
+(
+    .address(rom_index),
+    .data(rom_data),
+    .last(rom_last)
+);
+
+reg busy = 1'b0;
 reg first_reset = 1'b1;
 reg vbat_on = 1'b0;
 
-reg [7:0] command_index = 8'h00;
-
 always @(posedge clk_in) begin
     if (reset) begin
+        busy <= 1'b0;
+        rom_index <= 0;
+    end else begin
+        if (!busy) begin            
+            busy <= 1'b1;
+        end 
+        if (busy && command_ready) begin
+            rom_index <= rom_index + 1;
+        end
+        if (busy && rom_last) begin
+            busy <= 1'b0;
+        end
         if (first_reset) begin
             first_reset <= 1'b0;
             vbat_on <= 1'b0;
         end
-        command_index <= command_index + 1;
     end
 end
+
+assign done = !busy;
 
 assign oled_rstn = !reset;
 
@@ -49,8 +63,8 @@ assign oled_vbatn = !vbat_on;
 
 assign oled_csn = command_ready;
 
-assign command_out = commands[command_index];
+assign command_out = rom_data[7:0];
 
-assign command_start = reset;
+assign command_start = busy;
 
 endmodule
