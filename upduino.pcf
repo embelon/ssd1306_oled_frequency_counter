@@ -1,0 +1,19 @@
+# 12 MHz clock
+#set_io clk          35
+
+# Onboard LEDs
+set_io led_blue     39
+set_io led_green    40
+set_io led_red      41
+
+# OLED
+set_io oled_nrst    44
+set_io oled_nvbat   4
+set_io oled_nvcd  	3
+set_io oled_ncs		48
+set_io oled_dnc		45
+set_io oled_clk		47
+set_io oled_mosi	46
+
+# additional io / debug
+set_io debugA       2
