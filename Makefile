@@ -1,7 +1,7 @@
 
 # ---- iCE40 Upduino 2.0 Board ----
 
-upduino.json: upduino.sv shift_reg.v
+upduino.json: upduino.sv shift_reg.v ssd1306_init.sv
 	yosys -ql upduino.log -p 'synth_ice40 -top upduino -json upduino.json' $^
 
 upduino_syn.v: upduino.json

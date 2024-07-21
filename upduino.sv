@@ -7,11 +7,11 @@ module upduino (
 	output debugA,
 
 	// OLED
-	output oled_nrst,
-	output oled_nvbat,	
-	output oled_nvcd,
-	output oled_ncs,
-	output oled_dnc,
+	output oled_rstn,
+	output oled_vbatn,	
+	output oled_vcdn,
+	output oled_csn,
+	output oled_dc,
 	output oled_clk,
 	output oled_mosi,
 );
@@ -68,16 +68,34 @@ module upduino (
 
 	assign led_red = delay[21];
 
-	assign oled_nrst = delay[20];
+	wire init_cmd_start;
+	wire [7:0] init_cmd;
+	wire cmd_ready;
 
-	assign oled_dnc = delay[11];
+	ssd1306_init init (
+    	.clk_in(clk_1M),
+    	.reset(delay[21]),        	// also triggers init / reinit
+
+    	.done(),        			// done goes 1 when init sequence finished
+    
+    	// signals to control shift register
+    	.command_start(init_cmd_start),
+    	.command_out(init_cmd),
+    	.command_ready(cmd_ready),
+
+    	// IO controlled by init module directly
+    	.oled_rstn(oled_rstn),
+    	.oled_vbatn(oled_vbatn),
+    	.oled_csn(oled_csn),
+    	.oled_dc(oled_dc)
+	);
 
 	shift_reg shift (
     	.clk_in(clk_1M),
-    	.start(delay[11]),
-    	.data_in(8'b01101001),
+    	.start(init_cmd_start),
+    	.data_in(init_cmd),
 
-    	.ready(oled_ncs),
+    	.ready(cmd_ready),
     	.data_out(),
 
     	.clk_out(oled_clk),
