@@ -6,7 +6,7 @@ module shift_register
 )
 (
     input clk_in,
-    input reset,
+    input reset_in,
 
     input start,
     input [WIDTH-1:0] data_in,
@@ -24,10 +24,10 @@ parameter BIT_COUNT_WIDTH = $clog2(WIDTH+1);
 reg [WIDTH-1:0] shadow_reg_r;
 reg [BIT_COUNT_WIDTH-1:0] bit_counter_r;
 
-assign ready = !|bit_counter_r & !reset;
+assign ready = !|bit_counter_r & !reset_in;
 
 always @(posedge clk_in) begin
-    if (reset) begin
+    if (reset_in) begin
         shadow_reg_r <= 0;
         bit_counter_r <= 0;
     end else begin
@@ -45,7 +45,7 @@ always @(posedge clk_in) begin
     end
 end
 
-assign clk_out = !clk_in & !ready & !reset;
+assign clk_out = !clk_in & !ready & !reset_in;
 assign serial_out = shadow_reg_r[WIDTH-1];
 
 assign data_out = ready ? shadow_reg_r : 0;

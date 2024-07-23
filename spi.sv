@@ -7,7 +7,7 @@ module spi
 )
 (
     input clk_in,    
-    input reset,
+    input reset_in,
 
     input transmitt,
     input deactivate_cs_after,
@@ -38,7 +38,7 @@ wire shift_reg_ready;
 
 shift_register #(.WIDTH(WIDTH)) shift_reg (
     .clk_in(clk_in),
-    .reset(reset),
+    .reset_in(reset_in),
 
     .start(trigger_shift_reg),
     .data_in(data_in),
@@ -52,7 +52,7 @@ shift_register #(.WIDTH(WIDTH)) shift_reg (
 );
 
 always @(posedge clk_in) begin
-    if (reset) begin
+    if (reset_in) begin
         state_r <= S_IDLE;
         cnt_r <= IDLE_TIME;
         deactivate_cs_r <= 1'b0;
@@ -85,6 +85,6 @@ assign trigger_shift_reg = (state_r == S_TRIGGER);
 
 assign select = chip_select_r;
 
-assign ready = !reset & (state_r == S_IDLE);
+assign ready = !reset_in & (state_r == S_IDLE);
 
 endmodule

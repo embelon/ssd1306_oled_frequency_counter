@@ -1,33 +1,33 @@
-// Reset ON
-// Delay 10ms
-// Reset OFF
-// Delay 1ms
-@0 1_AE  // Display OFF
-0_D5 // Set CLK Div and Frequency
+@0 2_10 // Reset ON
+2_31    // Delay 10ms
+2_11    // Reset OFF
+2_31    // Delay 1ms
+1_AE    // Display OFF
+0_D5    // Set CLK Div and Frequency
 1_80
-0_A8 // Set Multiplex Ratio
+0_A8    // Set Multiplex Ratio
 1_1F
-0_D3 // Set Offset
+0_D3    // Set Offset
 1_00
-1_40 // Set Start Line
-0_8D // Set Charge Pump
+1_40    // Set Start Line
+0_8D    // Set Charge Pump
 1_14
-1_A1 // Set Segment Remap
-1_C8 // Set COM Out Scan Dir
-0_DA // Set COM Pins HW Config
+1_A1    // Set Segment Remap
+1_C8    // Set COM Out Scan Dir
+0_DA    // Set COM Pins HW Config
 1_02
-0_B1 // Set Contrast
+0_B1    // Set Contrast
 1_8F
-0_D9 // Set Pre Charge Period
+0_D9    // Set Pre Charge Period
 1_F1
-0_DB // Set VCOMH Deselect
+0_DB    // Set VCOMH Deselect
 1_40
-1_A4 // Set Entire Display ON
-1_A6 // Set Display Mode
-0_20 // Set Addressing Mode
+1_A4    // Set Entire Display ON
+1_A6    // Set Display Mode
+0_20    // Set Addressing Mode
 1_01
-// VBAT ON
-// Delay 100ms
-1_AF // Display ON
-// Delay 10ms
-0_00
+2_20    // VBAT ON
+2_3C    // Delay 100ms
+1_AF    // Display ON
+2_31    // Delay 10ms
+2_FF    // STOP

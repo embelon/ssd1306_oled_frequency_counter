@@ -59,7 +59,7 @@ module upduino (
 		end
 	end
 
-	reg [21:0] delay = 0;
+	reg [23:0] delay = 0;
 	always @(posedge clk_12M) begin
 		delay <= delay + 22'b1;
 	end
@@ -76,7 +76,7 @@ module upduino (
 
 	ssd1306_init init (
     	.clk_in(clk_1M),
-    	.reset(delay[21]),        	// also triggers init / reinit
+    	.reset_in(delay[23]),        // also triggers init / reinit
 
     	.done(debugA),        		// done goes 1 when init sequence finished
     
@@ -94,7 +94,7 @@ module upduino (
 
 	spi spi_driver (
 		.clk_in(clk_1M),
-		.reset(delay[21]),
+		.reset_in(delay[23]),
 
     	.transmitt(init_trigger_spi),
 		.deactivate_cs_after(init_toggle_cs),
