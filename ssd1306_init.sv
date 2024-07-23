@@ -19,13 +19,17 @@ module ssd1306_init
     output oled_dc
 );
 
-parameter ROM_ADDRESS_WIDTH = 5;
+parameter ROM_ADDRESS_WIDTH = 6;
 parameter ROM_DATA_WIDTH = 10;
 
 reg [ROM_ADDRESS_WIDTH-1:0] rom_index_r;
 wire [ROM_DATA_WIDTH-1:0] rom_data;
 
-ssd1306_init_rom #(.DATA_WIDTH(ROM_DATA_WIDTH)) rom
+ssd1306_init_rom 
+#(
+    .SIZE(36), 
+    .DATA_WIDTH(ROM_DATA_WIDTH)
+) rom
 (
     .address(rom_index_r),
     .data(rom_data),
