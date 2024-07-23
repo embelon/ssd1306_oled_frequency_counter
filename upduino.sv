@@ -73,12 +73,13 @@ module upduino (
 	wire init_toggle_cs;
 	
 	wire spi_ready;
+	wire init_done;
 
 	ssd1306_init init (
     	.clk_in(clk_1M),
     	.reset_in(delay[23]),        // also triggers init / reinit
 
-    	.done(debugA),        		// done goes 1 when init sequence finished
+    	.done(init_done),      		// done goes 1 when init sequence finished
     
     	// signals to control spi
     	.command_start(init_trigger_spi),
@@ -91,6 +92,8 @@ module upduino (
     	.oled_vbatn(oled_vbatn),
     	.oled_dc(oled_dc)
 	);
+
+	assign debugA = init_done;
 
 	spi spi_driver (
 		.clk_in(clk_1M),
