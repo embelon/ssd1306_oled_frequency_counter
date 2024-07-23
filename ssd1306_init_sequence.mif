@@ -1,33 +1,70 @@
-@0 2_10 // Reset ON
-2_31    // Delay 10ms
-2_11    // Reset OFF
-2_31    // Delay 1ms
-1_AE    // Display OFF
-0_D5    // Set CLK Div and Frequency
-1_80
-0_A8    // Set Multiplex Ratio
-1_1F
-0_D3    // Set Offset
-1_00
-1_40    // Set Start Line
-0_8D    // Set Charge Pump
-1_14
-1_A1    // Set Segment Remap
-1_C8    // Set COM Out Scan Dir
-0_DA    // Set COM Pins HW Config
-1_02
-0_B1    // Set Contrast
-1_8F
-0_D9    // Set Pre Charge Period
-1_F1
-0_DB    // Set VCOMH Deselect
-1_40
-1_A4    // Set Entire Display ON
-1_A6    // Set Display Mode
-0_20    // Set Addressing Mode
-1_01
-2_20    // VBAT ON
-2_3C    // Delay 100ms
-1_AF    // Display ON
-2_31    // Delay 10ms
-2_FF    // STOP
+// Microcode sequence to initialize SSD1306
+// Each entry is 10bit wide: 
+// bit 9 (MSB) = interpreted_command    -> if '1' then command is executed by init module (i.e. delay), otherwise is being sent over SPI
+// bit 8       = deactivate_cs_after    -> if '1' then chips select will be deactivated after sending this command, used for commands with data 
+// bits 7:0    = command for SSD1306 or executed internally
+// Examples: 
+// 2_XY (hex) means internally executed command, where XY can be:
+//      CMD_SET_RESET = 0'b0001_xxxS, where S is state to be set  
+//      CMD_SET_VBAT = 0'b0010_xxxS, where S is state to be set 
+//      CMD_DELAY = 0'b0011_dddd, where dddd is delay 
+//      CMD_STOP = 0'b1111_****, where **** is don't care
+// 0_XY (hex) means non-last byte of value XY to be sent to SSD1306 controller over SPI (non-last means that CS should stay activated)
+// 1_XY (hex) means last byte of value XY to be sent to SSD1306 with CS deactivated shortly after transmission
+
+@0  2_10    // Reset ON
+
+    2_31    // Delay 10ms
+
+    2_11    // Reset OFF
+
+    2_31    // Delay 1ms
+
+    1_AE    // Display OFF
+
+    0_D5    // Set CLK Div and Frequency
+    1_80
+
+    0_A8    // Set Multiplex Ratio
+    1_1F
+
+    0_D3    // Set Offset
+    1_00
+
+    1_40    // Set Start Line
+
+    0_8D    // Set Charge Pump
+    1_14
+
+    1_A1    // Set Segment Remap
+
+    1_C8    // Set COM Out Scan Dir
+
+    0_DA    // Set COM Pins HW Config
+    1_02
+
+    0_B1    // Set Contrast
+    1_8F
+
+    0_D9    // Set Pre Charge Period
+    1_F1
+
+    0_DB    // Set VCOMH Deselect
+    1_40
+
+    1_A4    // Set Entire Display ON
+
+    1_A6    // Set Display Mode
+
+    0_20    // Set Addressing Mode
+    1_01
+
+    2_20    // VBAT ON
+
+    2_3C    // Delay 100ms
+
+    1_AF    // Display ON
+
+    2_31    // Delay 10ms
+
+    2_FF    // STOP
