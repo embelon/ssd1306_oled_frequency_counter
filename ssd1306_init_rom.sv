@@ -2,7 +2,7 @@
 
 module ssd1306_init_rom
 #(
-    parameter SIZE = 25,
+    parameter SIZE = 32,
     parameter DATA_WIDTH = 9,
     parameter INIT_FILE = "ssd1306_init_sequence.mif",
     localparam ADDRESS_BITS = $clog2(SIZE)

@@ -24,7 +24,7 @@ parameter BIT_COUNT_WIDTH = $clog2(WIDTH+1);
 reg [WIDTH-1:0] shadow_reg_r;
 reg [BIT_COUNT_WIDTH-1:0] bit_counter_r;
 
-assign ready = !|bit_counter_r;
+assign ready = !|bit_counter_r & !reset;
 
 always @(posedge clk_in) begin
     if (reset) begin
@@ -45,7 +45,7 @@ always @(posedge clk_in) begin
     end
 end
 
-assign clk_out = !clk_in & !ready;
+assign clk_out = !clk_in & !ready & !reset;
 assign serial_out = shadow_reg_r[WIDTH-1];
 
 assign data_out = ready ? shadow_reg_r : 0;

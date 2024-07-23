@@ -68,28 +68,48 @@ module upduino (
 
 	assign led_red = delay[21];
 
-	wire init_cmd_start;
-	wire [7:0] init_cmd;
-	wire cmd_ready;
+	wire init_trigger_spi;
+	wire [7:0] init_command;
+	wire init_toggle_cs;
+	
+	wire spi_ready;
 
 	ssd1306_init init (
     	.clk_in(clk_1M),
     	.reset(delay[21]),        	// also triggers init / reinit
 
-    	.done(),        			// done goes 1 when init sequence finished
+    	.done(debugA),        		// done goes 1 when init sequence finished
     
-    	// signals to control shift register
-    	.command_start(init_cmd_start),
-    	.command_out(init_cmd),
-    	.command_ready(cmd_ready),
+    	// signals to control spi
+    	.command_start(init_trigger_spi),
+    	.command_out(init_command),
+		.command_last_byte(init_toggle_cs),
+    	.command_ready(spi_ready),
 
     	// IO controlled by init module directly
     	.oled_rstn(oled_rstn),
     	.oled_vbatn(oled_vbatn),
-    	.oled_csn(oled_csn),
     	.oled_dc(oled_dc)
 	);
 
+	spi spi_driver (
+		.clk_in(clk_1M),
+		.reset(delay[21]),
+
+    	.transmitt(init_trigger_spi),
+		.deactivate_cs_after(init_toggle_cs),
+    	.data_in(init_command),
+
+    	.data_out(),
+    	.ready(spi_ready),
+
+		.select(oled_csn),
+		.sck(oled_clk),
+		.mosi(oled_mosi),
+		.miso(1'b0)
+	);
+
+/*	
 	shift_register shift (
     	.clk_in(clk_1M),
 		.reset(delay[21]),
@@ -104,7 +124,7 @@ module upduino (
     	.serial_out(oled_mosi),
     	.serial_in(1'b1)
 	);
-
+*/
 /*
 	wire [7:0] led_red_pwm, led_green_pwm, led_blue_pwm;
 

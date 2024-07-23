@@ -10,12 +10,12 @@ module ssd1306_init
     // signals to control shift register
     output command_start,    
     output [7:0] command_out,
+    output command_last_byte,
     input command_ready,
 
     // IO controlled by init module directly
     output oled_rstn,
     output oled_vbatn,
-    output oled_csn,
     output oled_dc
 );
 
@@ -34,39 +34,57 @@ reg busy_r;
 reg first_reset_r;
 reg vbat_on_r;
 
+parameter S_RESET = 0, S_IDLE = 1, S_SEND = 2, S_WAIT = 3, S_DONE = 4;
+reg [2:0] state_r;
+
 always @(posedge clk_in) begin
     if (reset) begin
-        busy_r <= 1'b0;
         first_reset_r <= 1'b0;
         vbat_on_r <= 1'b1;
         rom_index_r <= 0;
+        state_r <= S_RESET;        
     end else begin
-        if (!busy_r) begin            
-            busy_r <= 1'b1;
-        end 
-        if (busy_r && command_ready) begin
-            rom_index_r <= rom_index_r + 1;
-        end
-        if (busy_r && rom_last) begin
-            busy_r <= 1'b0;
-        end
-        if (first_reset_r) begin
-            first_reset_r <= 1'b0;
-            vbat_on_r <= 1'b0;
-        end
+        case (state_r)
+            S_RESET: begin
+                rom_index_r <= 0;
+                state_r <= S_IDLE;
+            end
+            S_IDLE: begin
+                if (command_ready) begin
+                    state_r <= S_SEND;
+                end
+            end
+            S_SEND: begin
+                if (!command_ready) begin
+                    state_r <= S_WAIT;
+                    rom_index_r <= rom_index_r + 1;         // prepare next command address
+                end
+            end
+            S_WAIT: begin
+                if (command_ready) begin
+                    if (|rom_data) begin
+                        state_r <= S_SEND;
+                    end else begin
+                        state_r <= S_DONE;
+                    end
+                end
+            end
+            S_DONE: begin
+            end
+
+        endcase
     end
 end
 
-assign done = !busy_r;
+assign done = (state_r == S_DONE);
 
 assign oled_rstn = !reset;
 
 assign oled_vbatn = !vbat_on_r;
 
-assign oled_csn = command_ready;
-
 assign command_out = rom_data[7:0];
+assign command_last_byte = rom_data[8];
 
-assign command_start = busy_r;
+assign command_start = (state_r == S_SEND);
 
 endmodule
