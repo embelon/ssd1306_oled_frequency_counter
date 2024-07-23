@@ -90,7 +90,7 @@ module upduino (
     	.oled_dc(oled_dc)
 	);
 
-	shift_reg shift (
+	shift_register shift (
     	.clk_in(clk_1M),
 		.reset(delay[21]),
 

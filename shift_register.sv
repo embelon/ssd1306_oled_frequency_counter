@@ -1,6 +1,6 @@
 `default_nettype none
 
-module shift_reg 
+module shift_register
 #(
 	parameter WIDTH = 8
 )
