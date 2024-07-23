@@ -92,6 +92,8 @@ module upduino (
 
 	shift_reg shift (
     	.clk_in(clk_1M),
+		.reset(delay[21]),
+
     	.start(init_cmd_start),
     	.data_in(init_cmd),
 

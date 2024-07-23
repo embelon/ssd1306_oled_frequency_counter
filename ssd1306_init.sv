@@ -19,52 +19,54 @@ module ssd1306_init
     output oled_dc
 );
 
-reg [4:0] rom_index = 4'h00;
+reg [4:0] rom_index_r;
 wire [8:0] rom_data;
 wire rom_last;
 
 ssd1306_init_rom rom
 (
-    .address(rom_index),
+    .address(rom_index_r),
     .data(rom_data),
     .last(rom_last)
 );
 
-reg busy = 1'b0;
-reg first_reset = 1'b1;
-reg vbat_on = 1'b0;
+reg busy_r;
+reg first_reset_r;
+reg vbat_on_r;
 
 always @(posedge clk_in) begin
     if (reset) begin
-        busy <= 1'b0;
-        rom_index <= 0;
+        busy_r <= 1'b0;
+        first_reset_r <= 1'b0;
+        vbat_on_r <= 1'b1;
+        rom_index_r <= 0;
     end else begin
-        if (!busy) begin            
-            busy <= 1'b1;
+        if (!busy_r) begin            
+            busy_r <= 1'b1;
         end 
-        if (busy && command_ready) begin
-            rom_index <= rom_index + 1;
+        if (busy_r && command_ready) begin
+            rom_index_r <= rom_index_r + 1;
         end
-        if (busy && rom_last) begin
-            busy <= 1'b0;
+        if (busy_r && rom_last) begin
+            busy_r <= 1'b0;
         end
-        if (first_reset) begin
-            first_reset <= 1'b0;
-            vbat_on <= 1'b0;
+        if (first_reset_r) begin
+            first_reset_r <= 1'b0;
+            vbat_on_r <= 1'b0;
         end
     end
 end
 
-assign done = !busy;
+assign done = !busy_r;
 
 assign oled_rstn = !reset;
 
-assign oled_vbatn = !vbat_on;
+assign oled_vbatn = !vbat_on_r;
 
 assign oled_csn = command_ready;
 
 assign command_out = rom_data[7:0];
 
-assign command_start = busy;
+assign command_start = busy_r;
 
 endmodule

@@ -6,6 +6,8 @@ module shift_reg
 )
 (
     input clk_in,
+    input reset,
+
     input start,
     input [WIDTH-1:0] data_in,
 
@@ -19,28 +21,33 @@ module shift_reg
 
 parameter BIT_COUNT_WIDTH = $clog2(WIDTH+1);
 
-reg [WIDTH-1:0] shadow_reg = 0;
-reg [BIT_COUNT_WIDTH-1:0] bit_counter = 0;
+reg [WIDTH-1:0] shadow_reg_r;
+reg [BIT_COUNT_WIDTH-1:0] bit_counter_r;
 
-assign ready = !|bit_counter;
+assign ready = !|bit_counter_r;
 
 always @(posedge clk_in) begin
-    if (ready & start) begin
-        shadow_reg <= data_in;
-        bit_counter <= bit_counter + 1;
-    end
-    if (!ready) begin
-        shadow_reg <= {shadow_reg[WIDTH-2:0], serial_in};
-        bit_counter <= bit_counter + 1;
-    end
-    if (bit_counter == WIDTH) begin
-        bit_counter <= 0;
+    if (reset) begin
+        shadow_reg_r <= 0;
+        bit_counter_r <= 0;
+    end else begin
+        if (ready & start) begin
+            shadow_reg_r <= data_in;
+            bit_counter_r <= bit_counter_r + 1;
+        end
+        if (!ready) begin
+            shadow_reg_r <= {shadow_reg_r[WIDTH-2:0], serial_in};
+            bit_counter_r <= bit_counter_r + 1;
+        end
+        if (bit_counter_r == WIDTH) begin
+            bit_counter_r <= 0;
+        end
     end
 end
 
 assign clk_out = !clk_in & !ready;
-assign serial_out = shadow_reg[WIDTH-1];
+assign serial_out = shadow_reg_r[WIDTH-1];
 
-assign data_out = ready ? shadow_reg : 0;
+assign data_out = ready ? shadow_reg_r : 0;
 
 endmodule
