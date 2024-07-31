@@ -68,6 +68,23 @@ module upduino (
 
 	assign led_red = delay[21];
 
+	localparam DIGITS_NUM = 6;
+	wire cnt_reset, cnt_enable;
+	wire [4*DIGITS_NUM-1:0] cnt_digits;
+	assign cnt_reset = delay[23];
+	assign cnt_enable = delay[23];
+
+	counter_bcd_Ndigits #(.DIGITS_NUM(DIGITS_NUM))
+	counter
+	(
+		.clk_in(clk_1M),
+		.reset_in(cnt_reset),
+		.enable_in(1'b1),
+
+		.digits(cnt_digits), 
+		.carry_out()
+	);
+
 	wire init_trigger_spi;
 	wire [7:0] init_command;
 	wire init_toggle_cs;
