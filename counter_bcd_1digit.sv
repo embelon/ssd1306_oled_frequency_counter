@@ -10,7 +10,7 @@ module counter_bcd_1digit
     output carry_out
 );
 
-always @(posedge clk) begin
+always @(posedge clk_in) begin
     if (reset_in) begin
         digit <= 4'h0;
     end else if (enable_in) begin
