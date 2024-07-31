@@ -1,10 +1,5 @@
 `default_nettype none
 
-typedef struct packed
-{
-    bit [3:0] value;
-} Digit;
-
 module counter_bcd_Ndigits
 #(
     parameter DIGITS_NUM = 6
@@ -14,7 +9,7 @@ module counter_bcd_Ndigits
     input reset_in,
     input enable_in,
 
-    output Digit [DIGITS_NUM-1:0] digits, 
+    output [4*DIGITS_NUM-1:0] digits, 
     output carry_out
 );
 
@@ -26,7 +21,7 @@ counter_bcd_1digit digit_0
     .reset_in(reset_in),
     .enable_in(enable_in),
 
-    .digit(digits[0]),
+    .digit(digits[3:0]),
     .carry_out(carry[0])
 );
 
@@ -39,7 +34,7 @@ generate
             .reset_in(reset_in),
             .enable_in(carry[g]),
 
-            .digit(digits[g]),
+            .digit(digits[4*g+3:4*g]),
             .carry_out(carry[g])
         );
     end
