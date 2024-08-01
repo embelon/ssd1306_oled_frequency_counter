@@ -16,6 +16,7 @@ module ssd1306_init
     // IO controlled by init module directly
     output reg oled_rstn,
     output reg oled_vbatn,
+    output reg oled_vcdn,
     output oled_dc
 );
 
@@ -59,6 +60,7 @@ always @(posedge clk_in) begin
     if (reset_in) begin
         oled_rstn <= 1'b0;
         oled_vbatn <= 1'b1;
+        oled_vcdn <= 1'b1;
         rom_index_r <= 0;
         delay_cnt <= 0;
         state_r <= S_RESET;        
