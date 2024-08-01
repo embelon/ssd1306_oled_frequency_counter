@@ -4,7 +4,7 @@ module decoder_7seg_to_21x32pix
 (
     input Segments segments_in,
 
-    input [3:0] index_x,
+    input [4:0] index_x,
     input [1:0] index_y,
 
     output [7:0] pixels_column
@@ -13,7 +13,7 @@ module decoder_7seg_to_21x32pix
     parameter SPACE = 2;
 
     // adjust space before character (number of empty columns)
-    bit [3:0] x = index_x - SPACE;
+    bit [4:0] x = index_x - SPACE;
     bit [1:0] y = index_y;    
 
     // 'b', 'c', 'e', 'f' segments definition
@@ -108,7 +108,7 @@ module decoder_7seg_to_21x32pix
     endfunction
 
 always @(digit_in, index_x, index_y) begin
-    if (index_x < SPACE) begin
+    if ((index_x < SPACE) || (index >= SPACE + 16)) begin
         pixels_column <= 8'h00;
     end else begin
         pixels_column <= segment_A(segments_in, x, y) ||
