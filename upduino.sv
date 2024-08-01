@@ -48,7 +48,9 @@ module upduino (
 		.GLOBAL_BUFFER_OUTPUT(clk_10M)
 	);
 */
-	reg [5:0] reset_cnt = 0;
+
+	// 5ms reset pulse (65536 / 12M)
+	reg [15:0] reset_cnt = 0;
 	wire resetn = &reset_cnt;
 
 	always @(posedge clk_12M) begin
@@ -58,6 +60,8 @@ module upduino (
 			reset_cnt <= reset_cnt + !resetn;
 		end
 	end
+
+
 
 	reg [24:0] delay = 0;
 	always @(posedge clk_12M) begin
@@ -78,7 +82,7 @@ module upduino (
 	counter
 	(
 		.clk_in(clk_1M),
-		.reset_in(cnt_reset),
+		.reset_in(!resetn),
 		.enable_in(1'b1),
 
 		.digits(cnt_digits), 
@@ -89,7 +93,7 @@ module upduino (
 	ssd1306_driver oled_driver
 	(
 		.clk_in(clk_1M),
-		.reset_in(delay[24]),   // triggers init / reinit
+		.reset_in(!resetn),   // triggers init / reinit
 		
 		// data / command interface
 		.data_in(8'hc3),
