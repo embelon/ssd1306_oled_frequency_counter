@@ -107,18 +107,14 @@ module decoder_7seg_to_21x32pix
         segment_F = pixels;
     endfunction
 
-always @(digit_in, index_x, index_y) begin
-    if ((index_x < SPACE) || (index >= SPACE + 16)) begin
-        pixels_column <= 8'h00;
-    end else begin
-        pixels_column <= segment_A(segments_in, x, y) ||
-            segment_B(segments_in, x, y) ||
-            segment_C(segments_in, x, y) ||
-            segment_D(segments_in, x, y) ||
-            segment_E(segments_in, x, y) ||
-            segment_F(segments_in, x, y) ||
-            segment_G(segments_in, x, y);
-    end
-end
+    assign pixels_column = ((index_x < SPACE) || (index_x >= SPACE + 16)) ? 
+                            8'h00 :
+                            ( segment_A(segments_in, x, y) ||
+                            segment_B(segments_in, x, y) ||
+                            segment_C(segments_in, x, y) ||
+                            segment_D(segments_in, x, y) ||
+                            segment_E(segments_in, x, y) ||
+                            segment_F(segments_in, x, y) ||
+                            segment_G(segments_in, x, y) );
 
 endmodule
