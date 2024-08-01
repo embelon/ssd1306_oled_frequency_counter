@@ -59,19 +59,19 @@ module upduino (
 		end
 	end
 
-	reg [23:0] delay = 0;
+	reg [24:0] delay = 0;
 	always @(posedge clk_12M) begin
-		delay <= delay + 22'b1;
+		delay <= delay + 25'b1;
 	end
 
 	wire clk_1M = delay[3];
 
-	assign led_red = delay[21];
+	assign led_red = delay[23];
 
 	localparam DIGITS_NUM = 6;
 	wire cnt_reset, cnt_enable;
 	wire [4*DIGITS_NUM-1:0] cnt_digits;
-	assign cnt_reset = delay[23];
+	assign cnt_reset = delay[24];
 	assign cnt_enable = delay[23];
 
 	counter_bcd_Ndigits #(.DIGITS_NUM(DIGITS_NUM))
@@ -85,91 +85,26 @@ module upduino (
 		.carry_out()
 	);
 
-	wire init_trigger_spi;
-	wire [7:0] init_command;
-	wire init_toggle_cs;
-	
-	wire spi_ready;
-	wire init_done;
 
-	ssd1306_init init (
-    	.clk_in(clk_1M),
-    	.reset_in(delay[23]),        // also triggers init / reinit
-
-    	.done(init_done),      		// done goes 1 when init sequence finished
-    
-    	// signals to control spi
-    	.command_start(init_trigger_spi),
-    	.command_out(init_command),
-		.command_last_byte(init_toggle_cs),
-    	.command_ready(spi_ready),
-
-    	// IO controlled by init module directly
-    	.oled_rstn(oled_rstn),
-    	.oled_vbatn(oled_vbatn),
-    	.oled_dc(oled_dc)
-	);
-
-	assign debugA = init_done;
-
-	spi spi_driver (
+	ssd1306_driver oled_driver
+	(
 		.clk_in(clk_1M),
-		.reset_in(delay[23]),
+		.reset_in(delay[24]),   // triggers init / reinit
+		
+		// data / command interface
+		.data_in(8'hc3),
+		.write_stb(1),		// send data from data_in to lcd
+		.sync_stb(0),		// send commands to go back to (0,0)
+		.ready(debugA),    	// driver is ready for data / command
 
-    	.transmitt(init_trigger_spi),
-		.deactivate_cs_after(init_toggle_cs),
-    	.data_in(init_command),
-
-    	.data_out(),
-    	.ready(spi_ready),
-
-		.select(oled_csn),
-		.sck(oled_clk),
-		.mosi(oled_mosi),
-		.miso(1'b0)
+		// output signals controlling OLED (connected to pins)
+		.oled_rstn(oled_rstn),
+		.oled_vbatn(oled_vbatn),	
+		.oled_vcdn(oled_vcdn),
+		.oled_csn(oled_csn),
+		.oled_dc(oled_dc),
+		.oled_clk(oled_clk),
+		.oled_mosi(oled_mosi)
 	);
-
-/*	
-	shift_register shift (
-    	.clk_in(clk_1M),
-		.reset(delay[21]),
-
-    	.start(init_cmd_start),
-    	.data_in(init_cmd),
-
-    	.ready(cmd_ready),
-    	.data_out(),
-
-    	.clk_out(oled_clk),
-    	.serial_out(oled_mosi),
-    	.serial_in(1'b1)
-	);
-*/
-/*
-	wire [7:0] led_red_pwm, led_green_pwm, led_blue_pwm;
-
-	SB_RGBA_DRV 
-	#( 
-		.CURRENT_MODE("0b1"),  
-		.RGB0_CURRENT("0b000001"),
-		.RGB1_CURRENT("0b000001"),
-		.RGB2_CURRENT("0b000001")
-	)
-	rgb (
-		.RGBLEDEN (1'b1),
-		.RGB0PWM  (led_blue_pwm),
-		.RGB1PWM  (led_green_pwm),
-		.RGB2PWM  (led_red_pwm),
-		.CURREN   (1'b1),
-		.RGB0     (led_blue),
-		.RGB1     (led_green),
-		.RGB2     (led_red)
-	);
-
-	reg [31:0] gpio;
-	assign led_red_pwm = gpio[23:16];
-    assign led_green_pwm = gpio[15:8];
-    assign led_blue_pwm = gpio[7:0];
-*/
 
 endmodule
