@@ -61,8 +61,6 @@ module upduino (
 		end
 	end
 
-
-
 	reg [24:0] delay = 0;
 	always @(posedge clk_12M) begin
 		delay <= delay + 25'b1;
@@ -72,34 +70,42 @@ module upduino (
 
 	assign led_red = delay[23];
 
-	localparam DIGITS_NUM = 6;
+	
 	wire cnt_reset, cnt_enable;
+	assign cnt_reset = !resetn;
+	assign cnt_enable = delay[24];
+
+	localparam DIGITS_NUM = 6;
 	wire [4*DIGITS_NUM-1:0] cnt_digits;
-	assign cnt_reset = delay[24];
-	assign cnt_enable = delay[23];
 
 	counter_bcd_Ndigits #(.DIGITS_NUM(DIGITS_NUM))
 	counter
 	(
 		.clk_in(clk_1M),
-		.reset_in(!resetn),
-		.enable_in(1'b1),
+		.reset_in(cnt_reset),
+		.enable_in(cnt_enable),
 
 		.digits(cnt_digits), 
 		.carry_out()
 	);
 
 
+	wire oled_reset = !resetn;
+	wire [7:0] oled_data;
+	wire oled_write_stb;
+	wire oled_sync_stb;
+	wire oled_ready;
+
 	ssd1306_driver oled_driver
 	(
 		.clk_in(clk_1M),
-		.reset_in(!resetn),   // triggers init / reinit
+		.reset_in(oled_reset),   		// triggers init / reinit
 		
 		// data / command interface
-		.data_in(8'hc3),
-		.write_stb(1),		// send data from data_in to lcd
-		.sync_stb(0),		// send commands to go back to (0,0)
-		.ready(debugA),    	// driver is ready for data / command
+		.data_in(oled_data),
+		.write_stb(oled_write_stb),		// send data from data_in to lcd
+		.sync_stb(oled_sync_stb),		// send commands to go back to (0,0)
+		.ready(oled_ready),    			// driver is ready for data / command
 
 		// output signals controlling OLED (connected to pins)
 		.oled_rstn(oled_rstn),
@@ -110,5 +116,36 @@ module upduino (
 		.oled_clk(oled_clk),
 		.oled_mosi(oled_mosi)
 	);
+
+	data_streamer #(.DIGITS_NUM(DIGITS_NUM))
+	streamer
+	(
+		.clk_in(clk_1M),
+		.reset_in(!resetn),
+
+		// data interface, data to be displayed as number
+		.digits(cnt_digits),
+		.write_stb(!cnt_enable),
+		.ready(),
+
+		// output interface (to be connected to oled driver)
+		.oled_data(oled_data),
+		.oled_write_stb(oled_write_stb),
+		.oled_sync_stb(oled_sync_stb),
+		.oled_ready(oled_ready)
+	);
+
+
+
+
+
+
+
+
+
+
+
+
+	assign debugA = oled_ready;
 
 endmodule

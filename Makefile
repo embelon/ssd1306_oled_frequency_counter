@@ -1,7 +1,7 @@
 
 # ---- iCE40 Upduino 2.0 Board ----
 
-upduino.json: shift_register.sv spi.sv ssd1306_init_rom.sv ssd1306_init.sv ssd1306_driver.sv counter_bcd_1digit.sv counter_bcd_Ndigits.sv decoder_bin_to_7seg.sv decoder_7seg_to_21x32pix.sv upduino.sv
+upduino.json: shift_register.sv spi.sv ssd1306_init_rom.sv ssd1306_init.sv ssd1306_driver.sv counter_bcd_1digit.sv counter_bcd_Ndigits.sv decoder_bin_to_7seg.sv decoder_7seg_to_21x32pix.sv data_streamer.sv upduino.sv
 	yosys -ql upduino.log -p 'synth_ice40 -top upduino -json upduino.json' $^
 
 upduino_syn.v: upduino.json
