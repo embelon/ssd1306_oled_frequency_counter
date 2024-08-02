@@ -108,7 +108,7 @@ module data_streamer
     assign ready = (state_r == S_IDLE);
 
     // get actual digit
-    wire [7:0] current_digit;
+    wire [3:0] current_digit;
     assign current_digit = digits_r[4*digit_cnt_r+3:4*digit_cnt_r];
 
     // first decode number to 7 segments
@@ -130,7 +130,7 @@ module data_streamer
         .index_x(x_index_r),
         .index_y(y_index_r),
 
-        .pixels_column(pixels)
+        .pixels(pixels)
     );
 
     assign oled_data = pixels;
