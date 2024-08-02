@@ -8,7 +8,7 @@ upduino_syn.v: upduino.json
 	yosys -p 'read_json upduino.json; write_verilog upduino_syn.v'
 
 upduino.asc: upduino.pcf upduino.json
-	nextpnr-ice40 --freq 20 --up5k --asc upduino.asc --pcf upduino.pcf --json upduino.json
+	nextpnr-ice40 --freq 14 --up5k --package sg48 --asc upduino.asc --pcf upduino.pcf --json upduino.json
 
 upduino.bin: upduino.asc
 	icetime -d up5k -c 12 -mtr upduino.rpt upduino.asc
