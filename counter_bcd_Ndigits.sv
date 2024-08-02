@@ -32,7 +32,7 @@ generate
         (
             .clk_in(clk_in),
             .reset_in(reset_in),
-            .enable_in(carry[g]),
+            .enable_in(carry[g-1]),
 
             .digit(digits[4*g+3:4*g]),
             .carry_out(carry[g])
