@@ -66,30 +66,7 @@ module decoder_7seg_to_21x32pix
             'h0f: pattern_bcef = 8'h00; 
         endcase
     end
-/*
-    // LUT for 'b', 'c', 'e', 'f' segments definition
-    reg [7:0] pattern_bcef;
-    always @* begin
-        case (index_bcef)
-            'h00: pattern_bcef = 8'h00;
-            'h01: pattern_bcef = 8'h00;     
-            'h02: pattern_bcef = 8'h00;
-            'h03: pattern_bcef = 8'h00;     
-            'h04: pattern_bcef = 8'hf0;
-            'h05: pattern_bcef = 8'hfc;
-            'h06: pattern_bcef = 8'h1f;
-            'h07: pattern_bcef = 8'hfe;
-            'h08: pattern_bcef = 8'h0f;
-            'h09: pattern_bcef = 8'hfc;
-            'h0a: pattern_bcef = 8'h07;
-            'h0b: pattern_bcef = 8'hf8;
-            'h0c: pattern_bcef = 8'h00;
-            'h0d: pattern_bcef = 8'h00;     
-            'h0e: pattern_bcef = 8'h00;
-            'h0f: pattern_bcef = 8'h00; 
-        endcase
-    end
-*/
+
     // LUT for 'a', 'd', 'g' segments definition
     // 'a' and 'd' segments are packed with 'g' segments in one LUT to save some space
     parameter ad_mask = 8'hf8;
