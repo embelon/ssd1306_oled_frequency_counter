@@ -168,7 +168,7 @@ module ssd1306_driver
 	end
 
 	assign spi_transmitt = 	(state_r == S_SET_START_LINE) || (state_r == S_SET_OFFSET_CMD) || 
-							(state_r == S_OFFSET_CMD_WAIT) || (state_r == S_SEND_DATA);
+							(state_r == S_SEND_DATA);
 	assign spi_deactivate_cs = (state_r == S_SET_START_LINE) || (state_r == S_SEND_DATA);
 
     assign ready = state_r == S_IDLE;
