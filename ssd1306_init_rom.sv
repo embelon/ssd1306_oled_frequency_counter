@@ -13,7 +13,7 @@ module ssd1306_init_rom
     output address_overflow
 );
 
-logic [DATA_WIDTH-1:0] rom [0:SIZE-1];
+bit [DATA_WIDTH-1:0] rom [0:SIZE-1];
 
 initial begin
     $readmemh(INIT_FILE, rom);
