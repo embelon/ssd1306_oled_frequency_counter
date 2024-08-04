@@ -5,66 +5,84 @@
 // bits 7:0    = command for SSD1306 or executed internally
 // Examples: 
 // 2_XY (hex) means internally executed command, where XY can be:
+//      CMD_GOTO    -> 8'b1YYY_YYYY, where YYY_YYYY is address to goto
+//      CMD_DELAY   -> 8'b01YY_YYYY, where YY_YYYY is delay
+//      CMD_SET_PIN -> 8'b0010_PP0S, where PP is pin index, S is state to be set
+//      CMD_STOP    -> 8'b0000_0001
+//      CMD_NOP     -> 8'b0000_0000
 //      CMD_SET_RESET = 0'b0001_xxxS, where S is state to be set  
 //      CMD_SET_VBAT = 0'b0010_xxxS, where S is state to be set 
 //      CMD_DELAY = 0'b0011_dddd, where dddd is delay 
 //      CMD_STOP = 0'b1111_****, where **** is don't care
 // 0_XY (hex) means non-last byte of value XY to be sent to SSD1306 controller over SPI (non-last means that CS should stay activated)
 // 1_XY (hex) means last byte of value XY to be sent to SSD1306 with CS deactivated shortly after transmission
+@0  2_20    // Reset ON (drive low)
 
-@0  2_10    // Reset ON
+    2_2C    // D/C pin set to command (drive low)
 
-    2_31    // Delay 10ms
+    2_41    // Delay 10ms
 
-    2_11    // Reset OFF
+    2_21    // Reset OFF (drive high)
 
-    2_31    // Delay 1ms
+    2_41    // Delay 1ms
 
     1_AE    // Display OFF
 
     0_D5    // Set CLK Div and Frequency
     1_80
 
-    0_A8    // Set Multiplex Ratio
+@8  0_A8    // Set Multiplex Ratio
     1_1F
 
     0_D3    // Set Offset
-    1_00
+    1_00    // Offset 0
 
-    1_40    // Set Start Line
+    1_40    // Set Start Line, 0
 
     0_8D    // Set Charge Pump
     1_14
 
     1_A1    // Set Segment Remap
 
-    1_C8    // Set COM Out Scan Dir
+@10 1_C8    // Set COM Out Scan Dir
 
     0_DA    // Set COM Pins HW Config
     1_02
 
-    0_B1    // Set Contrast
+    0_81    // Set Contrast
     1_8F
 
     0_D9    // Set Pre Charge Period
     1_F1
 
-    0_DB    // Set VCOMH Deselect
+@17 0_DB    // Set VCOMH Deselect
     1_40
 
-    1_A4    // Set Entire Display ON
+@19 1_A4    // Set Entire Display ON
 
-    1_A6    // Set Display Mode
+    1_A6    // Set Display Mode, Normal (not inversed)
 
     0_20    // Set Addressing Mode
-    1_01
+    1_01    // Vertical addressing
 
-    2_20    // VBAT ON
+    2_24    // VBAT ON
 
-    2_3C    // Delay 100ms
+    2_70    // Delay 100ms
 
-    1_AF    // Display ON
+#1F 1_AF    // Display ON
 
-    2_31    // Delay 10ms
+    2_41    // Delay 10ms
 
-    2_FF    // STOP
+// Microcode sequence to set display to (0,0)
+@21 2_2C    // D/C pin set to command (drive low)
+
+    0_21    // Set Column Address to access CGRAM
+    0_00    // Start 0
+    1_7F    // End 127
+
+    0_22    // Set Page Address to access CGRAM
+    0_00    // Start 0
+    1_03    // End 3
+    2_2D    // D/C pin set to data (drive_high)
+
+@29 2_01    // STOP

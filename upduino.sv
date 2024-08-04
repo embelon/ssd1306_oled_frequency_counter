@@ -71,7 +71,8 @@ module upduino (
 	assign led_red = delay[23];
 
 	
-	wire cnt_reset, cnt_enable;
+	wire cnt_clk, cnt_reset, cnt_enable;
+	assign cnt_clk = delay[22];
 	assign cnt_reset = !resetn;
 	assign cnt_enable = delay[24];
 
@@ -81,9 +82,9 @@ module upduino (
 	counter_bcd_Ndigits #(.DIGITS_NUM(DIGITS_NUM))
 	counter
 	(
-		.clk_in(clk_1M),
+		.clk_in(cnt_clk),
 		.reset_in(cnt_reset),
-		.enable_in(cnt_enable),
+		.enable_in(1),
 
 		.digits(cnt_digits), 
 		.carry_out()
@@ -99,22 +100,22 @@ module upduino (
 	ssd1306_driver oled_driver
 	(
 		.clk_in(clk_1M),
-		.reset_in(oled_reset),   		// triggers init / reinit
+		.reset_in(oled_reset),   			// triggers init / reinit
 		
 		// data / command interface
 		.data_in(oled_data),
-		.write_stb(oled_write_stb),		// send data from data_in to lcd
-		.sync_stb(oled_sync_stb),		// send commands to go back to (0,0)
-		.ready(oled_ready),    			// driver is ready for data / command
+		.write_stb_in(oled_write_stb),		// send data from data_in to lcd
+		.sync_stb_in(oled_sync_stb),		// send commands to go back to (0,0)
+		.ready_out(oled_ready),    			// driver is ready for data / command
 
 		// output signals controlling OLED (connected to pins)
-		.oled_rstn(oled_rstn),
-		.oled_vbatn(oled_vbatn),	
-		.oled_vcdn(oled_vcdn),
-		.oled_csn(oled_csn),
-		.oled_dc(oled_dc),
-		.oled_clk(oled_clk),
-		.oled_mosi(oled_mosi)
+		.oled_rstn_out(oled_rstn),
+		.oled_vbatn_out(oled_vbatn),	
+		.oled_vcdn_out(oled_vcdn),
+		.oled_csn_out(oled_csn),
+		.oled_dc_out(oled_dc),
+		.oled_clk_out(oled_clk),
+		.oled_mosi_out(oled_mosi)
 	);
 
 	data_streamer #(.DIGITS_NUM(DIGITS_NUM))
@@ -124,26 +125,16 @@ module upduino (
 		.reset_in(!resetn),
 
 		// data interface, data to be displayed as number
-		.digits(cnt_digits),
-		.write_stb(!cnt_enable),
-		.ready(),
+		.digits_in(cnt_digits),
+		.refresh_stb_in(!cnt_enable),
+		.ready_out(),
 
 		// output interface (to be connected to oled driver)
-		.oled_data(oled_data),
-		.oled_write_stb(oled_write_stb),
-		.oled_sync_stb(oled_sync_stb),
-		.oled_ready(oled_ready)
+		.oled_data_out(oled_data),
+		.oled_write_stb_out(oled_write_stb),
+		.oled_sync_stb_out(oled_sync_stb),
+		.oled_ready_in(oled_ready)
 	);
-
-
-
-
-
-
-
-
-
-
 
 
 	assign debugA = oled_ready;

@@ -1,10 +1,10 @@
 `default_nettype none
 
-module ssd1306_init_rom
+module ssd1306_microcode_rom
 #(
-    parameter SIZE = 32,
+    parameter SIZE = 40,
     parameter DATA_WIDTH = 10,
-    parameter INIT_FILE = "ssd1306_init_sequence.mif",
+    parameter INIT_FILE = "ssd1306_microcode.mif",
     localparam ADDRESS_BITS = $clog2(SIZE)
 )
 (

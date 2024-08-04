@@ -7,158 +7,149 @@ module ssd1306_driver
     
 	// data / command interface
     input [7:0] data_in,
-    input write_stb,	// send data from data_in to lcd
-	input sync_stb,		// send commands to go back to (0,0)
-    output ready,       // driver is ready for data / command
+    input write_stb_in,		// send data from data_in to lcd
+	input sync_stb_in,		// send commands to go back to (0,0)
+    output ready_out,       // driver is ready for data / command
 
 	// output signals controlling OLED (connected to pins)
-	output oled_rstn,
-	output oled_vbatn,	
-	output oled_vcdn,
-	output oled_csn,
-	output oled_dc,
-	output oled_clk,
-	output oled_mosi,
+	output oled_rstn_out,
+	output oled_vbatn_out,	
+	output oled_vcdn_out,
+	output oled_csn_out,
+	output oled_dc_out,
+	output oled_clk_out,
+	output oled_mosi_out,
 );
 
 	// Internal signals
 	reg [7:0] spi_data;
-	reg spi_dc;					// data when 1, command when 0
-	wire spi_transmitt;			// transmitt trigger
+	wire spi_tx_start;			// triggers transmission
 	wire spi_deactivate_cs; 	// deactivate cs after current byte
 
-	// Signals coming from init module
-	wire init_command_start;
-	wire [7:0] init_command_code;
-	wire init_deactivate_cs;
-	wire init_done;
-	wire init_dc;
+	// Signals coming from microcode executor module
+	wire mc_executor_spi_tx_start;
+	wire [7:0] mc_executor_spi_data;
+	wire mc_executor_deactivate_cs;
+	wire mc_executor_dc_pin;
+	wire mc_executor_ready;
 
 	// Signals going to spi driver (MUXed)	
 	wire [7:0] spi_driver_data_in;
-	wire spi_driver_transmitt;
+	wire spi_driver_tx_start;
 	wire spi_driver_deactivate_cs;
-	// When init is finished (done = 1), then signals comming from init module are disconnected from spi driver
-	assign spi_driver_data_in = init_done ? spi_data : init_command_code;
-	assign spi_driver_transmitt = init_done ? spi_transmitt : init_command_start;
-	assign spi_driver_deactivate_cs = init_done ? spi_deactivate_cs : init_deactivate_cs;
+	// When procedure is finished (done = 1), then signals comming from microcode executor module 
+	// are disconnected from spi driver
+	assign spi_driver_data_in = mc_executor_ready ? spi_data : mc_executor_spi_data;
+	assign spi_driver_tx_start = mc_executor_ready ? spi_tx_start : mc_executor_spi_tx_start;
+	assign spi_driver_deactivate_cs = mc_executor_ready ? spi_deactivate_cs : mc_executor_deactivate_cs;
 
-	// When init is finished (done = 1), then dc is controlled locally
-	assign oled_dc = init_done ? spi_dc : init_dc;
+	// When procedure is finished (done = 1), then dc is controlled locally (1 -> data only)
+	assign oled_dc_out = mc_executor_ready ? 1'b1 : mc_executor_dc_pin;
 
 	// Signals coming from spi driver
-	wire spi_ready;
+	wire spi_driver_ready;
 
-	ssd1306_init init (
+	// microcode offset for init sequence
+	localparam S_CMD_INIT_MC_OFFSET = 0;
+	// microcode offset for sequence to get dislpay back to (0,0)
+	localparam S_CMD_SYNC_MC_OFFSET = 33;
+
+	localparam MICROCODE_SIZE = 44;
+	localparam MICROCODE_OFFSET_BITS = $clog2(MICROCODE_SIZE);
+	reg [MICROCODE_OFFSET_BITS-1:0] mc_procedure_offset;
+	wire mc_procedure_start;
+
+	ssd1306_microcode_exec 
+	#( .MICROCODE_SIZE(MICROCODE_SIZE) )
+	mc_exec (
     	.clk_in(clk_in),
-    	.reset_in(reset_in),        // also triggers init / reinit
+    	.reset_in(reset_in),        				// triggers only internal reset (wihtout init sequence)
 
-    	.done(init_done),      		// done goes 1 when init sequence finished
+		// interface to control microcode
+		.procedure_offset_in(mc_procedure_offset),		// microcode procedure offset
+		.procedure_start_in(mc_procedure_start),		// 1 -> triggers procedure execution
+    	.procedure_done_out(mc_executor_ready),      	// goes 1 when procedure is finished
     
-    	// signals to control spi
-    	.command_start(init_command_start),
-    	.command_out(init_command_code),
-		.command_last_byte(init_deactivate_cs),
-    	.command_ready(spi_ready),
+    	// interface to control SPI shift register
+    	.spi_tx_trigger_out(mc_executor_spi_tx_start),
+    	.spi_data_out(mc_executor_spi_data),
+		.spi_last_byte_out(mc_executor_deactivate_cs),
+    	.spi_ready_in(spi_driver_ready),
 
     	// IO controlled by init module directly
-    	.oled_rstn(oled_rstn),
-    	.oled_vbatn(oled_vbatn),
-		.oled_vcdn(oled_vcdn),
-    	.oled_dc(init_dc)
+    	.oled_rstn_out(oled_rstn_out),
+    	.oled_vbatn_out(oled_vbatn_out),
+		.oled_vcdn_out(oled_vcdn_out),
+    	.oled_dc_out(mc_executor_dc_pin)
 	);
 
 	spi spi_driver (
 		.clk_in(clk_in),
 		.reset_in(reset_in),
 
-    	.transmitt(spi_driver_transmitt),
-		.deactivate_cs_after(spi_driver_deactivate_cs),
+    	.tx_start_in(spi_driver_tx_start),
+		.deactivate_cs_in(spi_driver_deactivate_cs),
     	.data_in(spi_driver_data_in),
-
     	.data_out(),
-    	.ready(spi_ready),
+    	.tx_done_out(spi_driver_ready),
 
-		.select(oled_csn),
-		.sck(oled_clk),
-		.mosi(oled_mosi),
-		.miso(1'b0)
+		.select_out(oled_csn_out),
+		.sck_out(oled_clk_out),
+		.mosi_out(oled_mosi_out),
+		.miso_in(1'b0)
 	);
 
-	// commands to be send to display to go back to (0,0)
-	parameter S_CMD_LINE_0 = 8'h40;
-	parameter S_CMD_OFFSET = 8'hd3;
-
 	// state machine
-	parameter S_RESET = 0, S_INIT = 1, S_IDLE = 2;
-	parameter S_SET_START_LINE = 3, S_START_LINE_WAIT = 4;
-	parameter S_SET_OFFSET_CMD = 5, S_OFFSET_CMD_WAIT = 6;
-	parameter S_SEND_DATA = 7, S_DATA_WAIT = 8;
-	reg [3:0] state_r;
+	localparam S_RESET_WAIT = 0;							// wait for all blocks to become ready after reset
+	localparam S_MC_EXEC = 1, S_MC_WAIT = 2;
+	localparam S_IDLE = 4;
+	localparam S_SEND_DATA = 5, S_DATA_WAIT = 6;
+	reg [2:0] state_r;
 
 	always @(posedge clk_in) begin
 		if (reset_in) begin
-			state_r <= S_RESET;
+			mc_procedure_offset <= 0;
+			spi_data <= 8'h00;
+			state_r <= S_RESET_WAIT;
 		end else begin
 			case (state_r)
-			 	S_RESET: begin
-					state_r <= S_INIT;
+			 	S_RESET_WAIT: begin
+					mc_procedure_offset <= 0;
 					spi_data <= 8'h00;
-					spi_dc <= 0;
+					if (mc_executor_ready && spi_driver_ready) begin
+						mc_procedure_offset = S_CMD_INIT_MC_OFFSET;
+						state_r <= S_MC_EXEC;
+					end
 				end
-				S_INIT: begin
-					if (init_done && spi_ready) begin
+				S_MC_EXEC: begin
+					if (!mc_executor_ready) begin
+						state_r <= S_MC_WAIT;
+					end
+				end
+				S_MC_WAIT: begin
+					if (mc_executor_ready) begin
 						state_r <= S_IDLE;
 					end
 				end
 				S_IDLE: begin
-					if (sync_stb) begin
+					if (sync_stb_in) begin
 						// start sync command sequence
-						spi_dc <= 0;
-						state_r <= S_SET_START_LINE;
-					end else if (write_stb) begin
+						mc_procedure_offset = S_CMD_SYNC_MC_OFFSET;
+						state_r <= S_MC_EXEC;
+					end else if (write_stb_in) begin
 						// setup data transfer
-						spi_dc <= 1;
 						spi_data <= data_in;
 						state_r <= S_SEND_DATA;
 					end
 				end
-				S_SET_START_LINE: begin
-					// trigger sending start line command
-					spi_data <= S_CMD_LINE_0;
-					if (!spi_ready) begin		
-						// spi driver goes busy, need to wait
-						state_r <= S_START_LINE_WAIT;
-					end
-				end
-				S_START_LINE_WAIT: begin
-					// wait for set start line command to be sent out to display
-					if (spi_ready) begin
-						state_r <= S_SET_OFFSET_CMD;
-					end
-				end
-				S_SET_OFFSET_CMD: begin
-					spi_data <= S_CMD_OFFSET;
-					if (!spi_ready) begin
-						// spi driver goes busy, need to wait
-						state_r <= S_OFFSET_CMD_WAIT;
-					end
-				end
-				S_OFFSET_CMD_WAIT: begin
-					spi_data <= 8'h00;						// prepare second byte of offset command
-					if (spi_ready) begin
-						state_r <= S_SEND_DATA;
-					end
-				end
 				S_SEND_DATA: begin
-					if (!spi_ready) begin
+					if (!spi_driver_ready) begin
 						// spi driver goes busy, need to wait
 						state_r <= S_DATA_WAIT;
 					end
 				end
 				S_DATA_WAIT: begin
-					if (spi_ready) begin
-						spi_dc <= 0;
+					if (spi_driver_ready) begin
 						spi_data <= 8'h00;
 						state_r <= S_IDLE;
 					end
@@ -167,10 +158,11 @@ module ssd1306_driver
 		end
 	end
 
-	assign spi_transmitt = 	(state_r == S_SET_START_LINE) || (state_r == S_SET_OFFSET_CMD) || 
-							(state_r == S_SEND_DATA);
-	assign spi_deactivate_cs = (state_r == S_SET_START_LINE) || (state_r == S_SEND_DATA);
+	assign mc_procedure_start = (state_r == S_MC_EXEC);
 
-    assign ready = state_r == S_IDLE;
+	assign spi_tx_start = 	(state_r == S_SEND_DATA);
+	assign spi_deactivate_cs = (state_r == S_SEND_DATA);
+
+    assign ready_out = (state_r == S_IDLE);
 
 endmodule
