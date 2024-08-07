@@ -30,8 +30,8 @@ module data_streamer
 
     // max values for counters
     localparam DIGIT_CNT_MAX = DIGITS_NUM - 1;
-    localparam X_CNT_MAX = 21 - 1;          // 21 pixels
-    localparam Y_CNT_MAX = 4 - 1;           // 32 pixels => 4 bytes
+    localparam X_CNT_MAX = DIGIT_X_SIZE_PX - 1;         // 21 pixels, max is 20
+    localparam Y_CNT_MAX = LCD_Y_SIZE_BYTES - 1;        // 32 pixels => 4 bytes, max is 3
 
     // bit length for all counters
     localparam DIGIT_CNT_SIZE = $clog2(DIGIT_CNT_MAX);
@@ -118,7 +118,10 @@ module data_streamer
 
     // get actual digit
     wire [3:0] current_digit;
-    assign current_digit = digits_r[4*digit_cnt_r+3:4*digit_cnt_r];
+    always_comb begin
+        current_digit[3:0] = digits_r >> (4 * digit_cnt_r);
+    end
+//    assign current_digit = digits_r[4*digit_cnt_r+3:4*digit_cnt_r];
 
     // first decode number to 7 segments
     wire [6:0] segments7;
