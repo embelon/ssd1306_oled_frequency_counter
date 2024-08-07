@@ -29,7 +29,7 @@ module oled_frequency_counter
         .reset_in(reset_in),
         .enable_in(1),
 
-        .digits_out(),
+//		.digits_out(),
         .carry_out(state)
     );
 
@@ -50,7 +50,7 @@ module oled_frequency_counter
 		.enable_in(cnt_enable),
 
 		.digits_out(cnt_digits), 
-		.carry_out()
+//		.carry_out()
 	);
 
 	wire oled_reset = reset_in;
