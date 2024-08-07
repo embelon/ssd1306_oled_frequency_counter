@@ -90,7 +90,7 @@ module ssd1306_driver
     	.tx_start_in(spi_driver_tx_start),
 		.deactivate_cs_in(spi_driver_deactivate_cs),
     	.data_in(spi_driver_data_in),
-//    	.data_out(),
+    	.data_out(),
     	.tx_done_out(spi_driver_ready),
 
 		.select_out(oled_csn_out),
