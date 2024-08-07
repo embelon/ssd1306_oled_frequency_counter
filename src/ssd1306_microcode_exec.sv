@@ -127,7 +127,7 @@ always @(posedge clk_in) begin
                         end
                         state_r <= S_RETIRE;
                     end else if (cmd_delay) begin
-                        delay_cnt <= {cmd_delay_value, 10'h000};
+                        delay_cnt <= {cmd_delay_value, 11'h000};
                         state_r <= S_DELAY;
                     end else if (cmd_set_pin) begin
                         case (pin_index)
