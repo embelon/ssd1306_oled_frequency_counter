@@ -6,18 +6,18 @@ module counter_bcd_1digit
     input reset_in,
     input enable_in,
 
-    output reg [3:0] digit,
+    output reg [3:0] digit_out,
     output carry_out
 );
 
 always @(posedge clk_in) begin
     if (reset_in) begin
-        digit <= 4'h0;
+        digit_out <= 4'h0;
     end else if (enable_in) begin
-        digit <= (digit == 9) ? 4'h0 : (digit + 1);
+        digit_out <= (digit_out == 9) ? 4'h0 : (digit_out + 1);
     end
 end
 
-assign carry_out = !reset_in && enable_in && (digit == 9);
+assign carry_out = !reset_in && enable_in && (digit_out == 9);
 
 endmodule

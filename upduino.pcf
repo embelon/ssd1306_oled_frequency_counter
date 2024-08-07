@@ -7,13 +7,13 @@ set_io led_green    40
 set_io led_red      41
 
 # OLED
-set_io oled_vbatn   2
-set_io oled_vcdn  	46
-set_io oled_csn		47
-set_io oled_dc		45
-set_io oled_clk		48
-set_io oled_mosi	3
-set_io oled_rstn    44
+set_io oled_vbatn_out   2
+set_io oled_vcdn_out  	46
+set_io oled_csn_out		47
+set_io oled_dc_out		45
+set_io oled_clk_out		48
+set_io oled_mosi_out	3
+set_io oled_rstn_out    44
 
 # additional io / debug
 set_io debugA       4

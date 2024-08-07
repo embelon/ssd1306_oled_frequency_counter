@@ -1,3 +1,4 @@
+`default_nettype none
 
 module upduino (
 	output led_red,
@@ -7,13 +8,13 @@ module upduino (
 	output debugA,
 
 	// OLED
-	output oled_rstn,
-	output oled_vbatn,	
-	output oled_vcdn,
-	output oled_csn,
-	output oled_dc,
-	output oled_clk,
-	output oled_mosi,
+	output oled_rstn_out,
+	output oled_vbatn_out,	
+	output oled_vcdn_out,
+	output oled_csn_out,
+	output oled_dc_out,
+	output oled_clk_out,
+	output oled_mosi_out,
 );
 
     wire clk_12M;
@@ -70,73 +71,21 @@ module upduino (
 
 	assign led_red = delay[23];
 
-	
-	wire cnt_clk, cnt_reset, cnt_enable;
-	assign cnt_clk = delay[22];
-	assign cnt_reset = !resetn;
-	assign cnt_enable = delay[24];
-
-	localparam DIGITS_NUM = 6;
-	wire [4*DIGITS_NUM-1:0] cnt_digits;
-
-	counter_bcd_Ndigits #(.DIGITS_NUM(DIGITS_NUM))
-	counter
+	oled_frequency_counter freq_counter
 	(
-		.clk_in(cnt_clk),
-		.reset_in(cnt_reset),
-		.enable_in(1),
-
-		.digits(cnt_digits), 
-		.carry_out()
-	);
-
-
-	wire oled_reset = !resetn;
-	wire [7:0] oled_data;
-	wire oled_write_stb;
-	wire oled_sync_stb;
-	wire oled_ready;
-
-	ssd1306_driver oled_driver
-	(
-		.clk_in(clk_1M),
-		.reset_in(oled_reset),   			// triggers init / reinit
-		
-		// data / command interface
-		.data_in(oled_data),
-		.write_stb_in(oled_write_stb),		// send data from data_in to lcd
-		.sync_stb_in(oled_sync_stb),		// send commands to go back to (0,0)
-		.ready_out(oled_ready),    			// driver is ready for data / command
-
-		// output signals controlling OLED (connected to pins)
-		.oled_rstn_out(oled_rstn),
-		.oled_vbatn_out(oled_vbatn),	
-		.oled_vcdn_out(oled_vcdn),
-		.oled_csn_out(oled_csn),
-		.oled_dc_out(oled_dc),
-		.oled_clk_out(oled_clk),
-		.oled_mosi_out(oled_mosi)
-	);
-
-	data_streamer #(.DIGITS_NUM(DIGITS_NUM))
-	streamer
-	(
-		.clk_in(clk_1M),
+		.clk_ref_in(clk_1M),
 		.reset_in(!resetn),
 
-		// data interface, data to be displayed as number
-		.digits_in(cnt_digits),
-		.refresh_stb_in(!cnt_enable),
-		.ready_out(),
+		.clk_x_in(delay[20]),
 
-		// output interface (to be connected to oled driver)
-		.oled_data_out(oled_data),
-		.oled_write_stb_out(oled_write_stb),
-		.oled_sync_stb_out(oled_sync_stb),
-		.oled_ready_in(oled_ready)
+		// Interface to controll SSD1306 OLED Display
+		.oled_rstn_out(oled_rstn_out),
+		.oled_vbatn_out(oled_vbatn_out),	
+		.oled_vcdn_out(oled_vcdn_out),
+		.oled_csn_out(oled_csn_out),
+		.oled_dc_out(oled_dc_out),
+		.oled_clk_out(oled_clk_out),
+		.oled_mosi_out(oled_mosi_out)
 	);
-
-
-	assign debugA = oled_ready;
-
+	
 endmodule

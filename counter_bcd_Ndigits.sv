@@ -9,7 +9,7 @@ module counter_bcd_Ndigits
     input reset_in,
     input enable_in,
 
-    output [4*DIGITS_NUM-1:0] digits, 
+    output [4*DIGITS_NUM-1:0] digits_out, 
     output carry_out
 );
 
@@ -21,7 +21,7 @@ counter_bcd_1digit digit_0
     .reset_in(reset_in),
     .enable_in(enable_in),
 
-    .digit(digits[3:0]),
+    .digit_out(digits_out[3:0]),
     .carry_out(carry[0])
 );
 
@@ -34,7 +34,7 @@ generate
             .reset_in(reset_in),
             .enable_in(carry[g-1]),
 
-            .digit(digits[4*g+3:4*g]),
+            .digit_out(digits_out[4*g+3:4*g]),
             .carry_out(carry[g])
         );
     end
