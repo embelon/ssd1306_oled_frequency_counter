@@ -123,7 +123,7 @@ always @(posedge clk_in) begin
                 if (command_interpreted) begin
                     if (cmd_goto) begin
                         if (cmd_goto_address < MICROCODE_SIZE) begin
-                            rom_index_r <= cmd_goto_address;    
+                            rom_index_r <= cmd_goto_address[MICROCODE_ADDRESS_BITS-1:0];    
                         end
                         state_r <= S_RETIRE;
                     end else if (cmd_delay) begin
