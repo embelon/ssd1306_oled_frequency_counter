@@ -36,7 +36,7 @@ ssd1306_microcode_rom
 #(
     .SIZE(MICROCODE_SIZE), 
     .DATA_WIDTH(ROM_DATA_WIDTH)
-) rom
+) microcode_rom
 (
     .address(rom_index_r),
     .data(rom_data),
