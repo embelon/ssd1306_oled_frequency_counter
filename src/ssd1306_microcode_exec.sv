@@ -40,7 +40,7 @@ ssd1306_microcode_rom
 (
     .address(rom_index_r),
     .data(rom_data),
-    .address_overflow()
+//    .address_overflow()
 );
 
 // opcodes for local commands (not sent to SSD1306)
