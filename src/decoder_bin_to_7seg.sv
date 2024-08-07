@@ -3,7 +3,7 @@
 module decoder_bin_to_7seg
 (
     input [3:0] digit_in,
-    output [7:0] segments_out
+    output [6:0] segments_out
 );
 
 always @(*) begin
