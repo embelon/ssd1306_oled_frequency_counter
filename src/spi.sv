@@ -21,13 +21,13 @@ module spi
     input miso_in
 );
 
-parameter DELAY_CNT_WIDTH = $clog2(IDLE_TIME);
+localparam DELAY_CNT_WIDTH = $clog2(IDLE_TIME);
 
 // State machine
-parameter S_IDLE = 0, S_TRIGGER = 1, S_TRANSMISSION = 2;
+localparam S_IDLE = 0, S_TRIGGER = 1, S_TRANSMISSION = 2;
 reg [1:0] state_r;
 
-reg [DELAY_CNT_WIDTH-1:0] cnt_r;
+//reg [DELAY_CNT_WIDTH-1:0] cnt_r;
 reg deactivate_cs_r;
 
 reg chip_select_r;
@@ -53,7 +53,7 @@ shift_register #(.WIDTH(WIDTH)) shift_reg (
 always @(posedge clk_in) begin
     if (reset_in) begin
         state_r <= S_IDLE;
-        cnt_r <= IDLE_TIME;
+//      cnt_r <= IDLE_TIME;
         deactivate_cs_r <= 1'b0;
         chip_select_r <= 1'b1;
     end else begin

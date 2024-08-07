@@ -27,7 +27,7 @@ module ssd1306_microcode_exec
     output reg oled_dc_out
 );
 
-parameter ROM_DATA_WIDTH = 10;
+localparam ROM_DATA_WIDTH = 10;
 
 reg [MICROCODE_ADDRESS_BITS-1:0] rom_index_r;
 wire [ROM_DATA_WIDTH-1:0] rom_data;
@@ -44,8 +44,6 @@ ssd1306_microcode_rom
 );
 
 // opcodes for local commands (not sent to SSD1306)
-parameter CMD_SET_RESET = 3'b001, CMD_SET_VBAT = 3'b010, CMD_DELAY = 3'b011, CMD_STOP = 3'b111;
-
 // GOTO is 8'b1yyy_yyyy, where y is 7 bit absolute address
 wire cmd_goto;
 wire [6:0] cmd_goto_address;
@@ -93,7 +91,7 @@ assign command_interpreted = rom_data[9];
 
 reg [16:0] delay_cnt;
 
-parameter S_RESET = 0, S_INIT = 1, S_IDLE = 2, S_FETCH_EXECUTE = 3, S_DELAY = 4, S_SEND = 5, S_WAIT = 6, S_RETIRE = 7;
+parameter S_RESET = 0, S_IDLE = 1, S_FETCH_EXECUTE = 2, S_DELAY = 3, S_SEND = 4, S_WAIT = 5, S_RETIRE = 6;
 reg [2:0] state_r;
 
 always @(posedge clk_in) begin

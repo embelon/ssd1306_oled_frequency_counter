@@ -6,7 +6,7 @@ module decoder_bin_to_7seg
     output [6:0] segments_out
 );
 
-always @(*) begin
+always_comb begin
     //                     {g, f, e, d, c, b, a}
     case (digit_in)
         4'd00 :   segments_out = 7'b0111111;

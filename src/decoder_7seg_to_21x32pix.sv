@@ -29,7 +29,7 @@ module decoder_7seg_to_21x32pix
     reg [3:0] index_bcef;
     // LUT for 'b', 'c', 'e', 'f' segments definition
     reg [7:0] pattern_bcef;
-    always @* begin
+    always_comb begin
         if (x_low && y_low && seg_f) begin
             // segment F
             index_bcef = {index_x_in[2:0], index_y_in[0]};
@@ -75,7 +75,7 @@ module decoder_7seg_to_21x32pix
     parameter ad_mask = 8'h1f;
     parameter g_mask = 8'hc0;
     reg [7:0] pattern_adg;
-    always @* begin
+    always_comb begin
         case (index_x_in)
             //                   A/D  |  G
             'h00: pattern_adg = 8'h00;
