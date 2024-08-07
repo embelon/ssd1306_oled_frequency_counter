@@ -20,6 +20,6 @@ initial begin
 end
 
 assign address_overflow = (address >= SIZE);
-assign data = !address_overflow ? rom[address] : {DATA_WIDTH-1{1'b0}};
+assign data = !address_overflow ? rom[address] : {DATA_WIDTH{1'b0}};
 
 endmodule
