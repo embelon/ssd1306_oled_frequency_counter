@@ -5,18 +5,18 @@ module shift_register
 	parameter WIDTH = 8
 )
 (
-    input clk_in,
-    input reset_in,
+    input bit clk_in,
+    input bit reset_in,
 
-    input start_in,
-    input [WIDTH-1:0] data_in,
+    input bit start_in,
+    input bit [WIDTH-1:0] data_in,
 
-    output ready_out,
-    output [WIDTH-1:0] data_out,
+    output bit ready_out,
+    output bit [WIDTH-1:0] data_out,
 
-    output clk_out,
-    output serial_out,
-    input serial_in
+    output bit clk_out,
+    output bit serial_out,
+    input bit serial_in
 );
 
 parameter BIT_COUNT_WIDTH = $clog2(WIDTH+1);

@@ -2,15 +2,15 @@
 
 module decoder_7seg_to_21x32pix
 (
-    input [6:0] segments_in,
+    input bit [6:0] segments_in,
 
-    input [4:0] index_x_in,
-    input [1:0] index_y_in,
+    input bit [4:0] index_x_in,
+    input bit [1:0] index_y_in,
 
-    output [7:0] pixels_out
+    output bit [7:0] pixels_out
 );
 
-    localparam X_PIXELS = 21;
+    localparam X_PIXELS = 5'd21;
     localparam X_MIDDLE_POINT = X_PIXELS / 2;
 
     bit x_low, x_high, y_low, y_high;
@@ -22,8 +22,8 @@ module decoder_7seg_to_21x32pix
     bit seg_a, seg_b, seg_c, seg_d, seg_e, seg_f, seg_g;
     assign {seg_g, seg_f, seg_e, seg_d, seg_c, seg_b, seg_a} = segments_in;
 
-    bit [2:0] x_back_index;
-    assign x_back_index = X_PIXELS - 2 - index_x_in;
+    bit [2:0] x_rev_index;
+    assign x_rev_index = {X_PIXELS - 5'd2 - index_x_in}[2:0];
 
     // index to get pixels from LUT, mirrored in X or Y or both
     reg [3:0] index_bcef;
@@ -40,11 +40,11 @@ module decoder_7seg_to_21x32pix
         end
         else if (x_high && y_low && seg_b) begin
             // segment B
-            index_bcef = {x_back_index[2:0], index_y_in[0]};
+            index_bcef = {x_rev_index[2:0], index_y_in[0]};
         end
         else if (x_high && y_high && seg_c) begin
             // segment C
-            index_bcef = {x_back_index[2:0], !index_y_in[0]};
+            index_bcef = {x_rev_index[2:0], !index_y_in[0]};
         end
         else begin
             index_bcef = 0;         // blank

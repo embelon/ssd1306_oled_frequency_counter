@@ -2,8 +2,8 @@
 
 module decoder_bin_to_7seg
 (
-    input [3:0] digit_in,
-    output [6:0] segments_out
+    input logic [3:0] digit_in,
+    output logic [6:0] segments_out
 );
 
 always_comb begin

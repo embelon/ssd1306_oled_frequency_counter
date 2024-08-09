@@ -18,7 +18,7 @@ module ssd1306_driver
 	output oled_csn_out,
 	output oled_dc_out,
 	output oled_clk_out,
-	output oled_mosi_out,
+	output oled_mosi_out
 );
 
 	// Internal signals
@@ -117,7 +117,7 @@ module ssd1306_driver
 					mc_procedure_offset <= 0;
 					spi_data <= 8'h00;
 					if (mc_executor_ready && spi_driver_ready) begin
-						mc_procedure_offset = S_CMD_INIT_MC_OFFSET;
+						mc_procedure_offset <= S_CMD_INIT_MC_OFFSET;
 						state_r <= S_MC_EXEC;
 					end
 				end
@@ -134,7 +134,7 @@ module ssd1306_driver
 				S_IDLE: begin
 					if (sync_stb_in) begin
 						// start sync command sequence
-						mc_procedure_offset = S_CMD_SYNC_MC_OFFSET;
+						mc_procedure_offset <= S_CMD_SYNC_MC_OFFSET;
 						state_r <= S_MC_EXEC;
 					end else if (write_stb_in) begin
 						// setup data transfer

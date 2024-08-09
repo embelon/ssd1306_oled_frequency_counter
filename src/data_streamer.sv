@@ -117,11 +117,10 @@ module data_streamer
     assign ready_out = (state_r == S_IDLE);
 
     // get actual digit
-    wire [3:0] current_digit;
+    logic [3:0] current_digit;
     always_comb begin
-        current_digit[3:0] = digits_r >> (4 * digit_cnt_r);
+        current_digit[3:0] = {digits_r >> (4 * digit_cnt_r)}[3:0];
     end
-//    assign current_digit = digits_r[4*digit_cnt_r+3:4*digit_cnt_r];
 
     // first decode number to 7 segments
     wire [6:0] segments7;

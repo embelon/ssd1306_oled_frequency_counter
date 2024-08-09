@@ -2,34 +2,29 @@
 
 module spi
 #(
-	parameter WIDTH = 8,
-    parameter IDLE_TIME = 4
+	parameter WIDTH = 8
 )
 (
-    input clk_in,    
-    input reset_in,
+    input bit clk_in,    
+    input bit reset_in,
 
-    input tx_start_in,
-    input deactivate_cs_in,             // when 1 -> deactivate select line after transmission of current byte
-    input [WIDTH-1:0] data_in,
-    output [WIDTH-1:0] data_out,
-    output tx_done_out,
+    input bit tx_start_in,
+    input bit deactivate_cs_in,             // when 1 -> deactivate select line after transmission of current byte
+    input bit [WIDTH-1:0] data_in,
+    output bit [WIDTH-1:0] data_out,
+    output bit tx_done_out,
 
-    output select_out,
-    output sck_out,
-    output mosi_out,
-    input miso_in
+    output bit select_out,
+    output bit sck_out,
+    output bit mosi_out,
+    input bit miso_in
 );
-
-localparam DELAY_CNT_WIDTH = $clog2(IDLE_TIME);
 
 // State machine
 localparam S_IDLE = 0, S_TRIGGER = 1, S_TRANSMISSION = 2;
 reg [1:0] state_r;
 
-//reg [DELAY_CNT_WIDTH-1:0] cnt_r;
 reg deactivate_cs_r;
-
 reg chip_select_r;
 
 wire trigger_shift_reg;
@@ -53,7 +48,6 @@ shift_register #(.WIDTH(WIDTH)) shift_reg (
 always @(posedge clk_in) begin
     if (reset_in) begin
         state_r <= S_IDLE;
-//      cnt_r <= IDLE_TIME;
         deactivate_cs_r <= 1'b0;
         chip_select_r <= 1'b1;
     end else begin
