@@ -119,7 +119,7 @@ module data_streamer
     // get actual digit
     logic [3:0] current_digit;
     always_comb begin
-        current_digit[3:0] = {digits_r >> (4 * digit_cnt_r)}[3:0];
+        current_digit[3:0] = digits_r >> (4 * digit_cnt_r);
     end
 
     // first decode number to 7 segments
