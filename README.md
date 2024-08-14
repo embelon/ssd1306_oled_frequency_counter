@@ -1,1 +1,1 @@
-# oled_spi_ice40
+# SSD1306 OLED Frequency Counter
