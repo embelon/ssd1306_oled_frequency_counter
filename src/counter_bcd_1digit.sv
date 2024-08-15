@@ -2,12 +2,12 @@
 
 module counter_bcd_1digit
 (
-    input clk_in,
-    input reset_in,
-    input enable_in,
+    input bit clk_in,
+    input bit reset_in,
+    input bit enable_in,
 
     output reg [3:0] digit_out,
-    output carry_out
+    output bit carry_out
 );
 
 always @(posedge clk_in) begin
