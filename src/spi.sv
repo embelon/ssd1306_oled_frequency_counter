@@ -20,9 +20,9 @@ module spi
     input bit miso_in
 );
 
-// State machine
-localparam S_IDLE = 0, S_TRIGGER = 1, S_TRANSMISSION = 2;
-reg [1:0] state_r;
+// State machine definition
+typedef enum {S_IDLE, S_TRIGGER, S_TRANSMISSION} e_state;
+e_state state_r;
 
 reg deactivate_cs_r;
 reg chip_select_r;
