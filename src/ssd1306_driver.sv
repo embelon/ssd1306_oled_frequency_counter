@@ -2,23 +2,23 @@
 
 module ssd1306_driver
 (
-    input clk_in,
-    input reset_in,     // triggers init / reinit
+    input bit clk_in,
+    input bit reset_in,     // triggers init / reinit
     
 	// data / command interface
-    input [7:0] data_in,
-    input write_stb_in,		// send data from data_in to lcd
-	input sync_stb_in,		// send commands to go back to (0,0)
-    output ready_out,       // driver is ready for data / command
+    input bit [7:0] data_in,
+    input bit write_stb_in,		// send data from data_in to lcd
+	input bit sync_stb_in,		// send commands to go back to (0,0)
+    output bit ready_out,       // driver is ready for data / command
 
 	// output signals controlling OLED (connected to pins)
-	output oled_rstn_out,
-	output oled_vbatn_out,	
-	output oled_vcdn_out,
-	output oled_csn_out,
-	output oled_dc_out,
-	output oled_clk_out,
-	output oled_mosi_out
+	output bit oled_rstn_out,
+	output bit oled_vbatn_out,	
+	output bit oled_vcdn_out,
+	output bit oled_csn_out,
+	output bit oled_dc_out,
+	output bit oled_clk_out,
+	output bit oled_mosi_out
 );
 
 	// Internal signals
@@ -99,12 +99,10 @@ module ssd1306_driver
 		.miso_in(1'b0)
 	);
 
-	// state machine
-	localparam S_RESET_WAIT = 0;							// wait for all blocks to become ready after reset
-	localparam S_MC_EXEC = 1, S_MC_WAIT = 2;
-	localparam S_IDLE = 4;
-	localparam S_SEND_DATA = 5, S_DATA_WAIT = 6;
-	reg [2:0] state_r;
+	// state machine definition
+	// S_RESET_WAIT -> wait for all blocks to become ready after reset
+	typedef enum {S_RESET_WAIT, S_MC_EXEC, S_MC_WAIT, S_IDLE, S_SEND_DATA, S_DATA_WAIT} e_state;
+	e_state state_r;
 
 	always @(posedge clk_in) begin
 		if (reset_in) begin
