@@ -3,6 +3,7 @@
 module decoder_7seg_to_21x32pix
 (
     input bit [6:0] segments_in,
+    input bit dec_point_in,
 
     input bit [4:0] index_x_in,
     input bit [1:0] index_y_in,
@@ -72,8 +73,8 @@ module decoder_7seg_to_21x32pix
 
     // LUT for 'a', 'd', 'g' segments definition
     // 'a' and 'd' segments are packed with 'g' segments in one LUT to save some space
-    parameter ad_mask = 8'h1f;
-    parameter g_mask = 8'hc0;
+    localparam ad_mask = 8'h1f;
+    localparam g_mask = 8'hc0;
     reg [7:0] pattern_adg;
     always_comb begin
         case (index_x_in)
@@ -126,6 +127,13 @@ module decoder_7seg_to_21x32pix
 
     assign pixels_segBCEF = y_high ? reverse_8bits(pattern_bcef) : pattern_bcef;
 
-    assign pixels_out = pixels_segA | pixels_segD | pixels_segG | pixels_segBCEF;
+    localparam pattern_dp = 8'he0;
+    wire [7:0] pixels_segDP;
+
+    assign pixels_segDP = (dec_point_in && (index_x_in < X_PIXELS) && (index_x_in > X_PIXELS - 3) && (index_y_in == 3)) ? 
+                        pattern_dp : 
+                        8'h00;
+
+    assign pixels_out = pixels_segA | pixels_segD | pixels_segG | pixels_segBCEF | pixels_segDP;
 
 endmodule

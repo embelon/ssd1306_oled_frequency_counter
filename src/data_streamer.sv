@@ -137,6 +137,7 @@ module data_streamer
     decoder_7seg_to_21x32pix graphical_decoder
     (
         .segments_in(segments7),
+        .dec_point_in(1'b1),
 
         .index_x_in(x_index_r),
         .index_y_in(y_index_r),
