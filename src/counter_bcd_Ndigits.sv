@@ -5,12 +5,12 @@ module counter_bcd_Ndigits
     parameter DIGITS_NUM = 6
 )
 (
-    input clk_in,
-    input reset_in,
-    input enable_in,
+    input bit clk_in,
+    input bit reset_in,
+    input bit enable_in,
 
-    output [4*DIGITS_NUM-1:0] digits_out, 
-    output carry_out
+    output bit [4*DIGITS_NUM-1:0] digits_out, 
+    output bit carry_out
 );
 
 wire [DIGITS_NUM-1:0] carry;
