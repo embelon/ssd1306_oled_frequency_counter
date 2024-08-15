@@ -2,24 +2,25 @@
 
 module oled_frequency_counter
 (
-    input clk_ref_in,
-    input reset_in,
+    input bit clk_ref_in,
+    input bit reset_in,
 
-    input clk_x_in,
+    input bit clk_x_in,
 
 	// Interface to controll SSD1306 OLED Display
-	output oled_rstn_out,
-	output oled_vbatn_out,	
-	output oled_vcdn_out,
-	output oled_csn_out,
-	output oled_dc_out,
-	output oled_clk_out,
-	output oled_mosi_out
+	output bit oled_rstn_out,
+	output bit oled_vbatn_out,	
+	output bit oled_vcdn_out,
+	output bit oled_csn_out,
+	output bit oled_dc_out,
+	output bit oled_clk_out,
+	output bit oled_mosi_out
 );
 
-    localparam S_MEASURE = 0, S_DISPLAY = 1;
-    wire state;
+	typedef enum {S_MEASURE, S_DISPLAY} e_state;
+    e_state state;
 
+	wire prescaler_carry_out;
     // clk divider to get refresh trigger
     // assuming clk_ref_in is 1MHz
     counter_bcd_Ndigits #(.DIGITS_NUM(6))
@@ -30,8 +31,10 @@ module oled_frequency_counter
         .enable_in(1'b1),
 
         .digits_out(),
-        .carry_out(state)
+        .carry_out(prescaler_carry_out)
     );
+
+	assign state = prescaler_carry_out ? S_DISPLAY : S_MEASURE;
 
     wire streamer_ready;
 
