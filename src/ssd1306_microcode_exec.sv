@@ -6,19 +6,19 @@ module ssd1306_microcode_exec
     localparam MICROCODE_ADDRESS_BITS = $clog2(MICROCODE_SIZE)
 )
 (
-    input clk_in,
-    input reset_in,         // triggers only internal reset (without init procedure)
+    input bit clk_in,
+    input bit reset_in,         // triggers only internal reset (without init procedure)
 
     // interface to control microcode
-    input [MICROCODE_ADDRESS_BITS-1:0] procedure_offset_in,    // microcode procedure offset
-    input procedure_start_in,                                  // 1 -> triggers procedure execution
-    output procedure_done_out,                                 // goes 1 when procedure is finished
+    input bit [MICROCODE_ADDRESS_BITS-1:0] procedure_offset_in,    // microcode procedure offset
+    input bit procedure_start_in,                                  // 1 -> triggers procedure execution
+    output bit procedure_done_out,                                 // goes 1 when procedure is finished
     
     // interface to control SPI shift register
-    output spi_tx_trigger_out,    
-    output [7:0] spi_data_out,
-    output spi_last_byte_out,
-    input spi_ready_in,
+    output bit spi_tx_trigger_out,    
+    output bit [7:0] spi_data_out,
+    output bit spi_last_byte_out,
+    input bit spi_ready_in,
 
     // IO controlled by init module directly
     output reg oled_rstn_out,
@@ -91,8 +91,8 @@ assign command_interpreted = rom_data[9];
 
 reg [16:0] delay_cnt;
 
-parameter S_RESET = 0, S_IDLE = 1, S_FETCH_EXECUTE = 2, S_DELAY = 3, S_SEND = 4, S_WAIT = 5, S_RETIRE = 6;
-reg [2:0] state_r;
+typedef enum {S_RESET, S_IDLE, S_FETCH_EXECUTE, S_DELAY, S_SEND, S_WAIT, S_RETIRE} e_state;
+e_state state_r;
 
 always @(posedge clk_in) begin
     if (reset_in) begin
