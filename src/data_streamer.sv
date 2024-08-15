@@ -5,19 +5,19 @@ module data_streamer
     DIGITS_NUM = 6
 )
 (
-    input clk_in,
-    input reset_in,
+    input bit clk_in,
+    input bit reset_in,
 
     // data interface, data to be displayed as number
-    input [4*DIGITS_NUM-1:0] digits_in,
-    input refresh_stb_in,
-    output ready_out,
+    input bit [4*DIGITS_NUM-1:0] digits_in,
+    input bit refresh_stb_in,
+    output bit ready_out,
 
     // output interface (to be connected to oled driver)
-    output [7:0] oled_data_out,
-    output oled_write_stb_out,
-    output oled_sync_stb_out,
-    input oled_ready_in
+    output bit [7:0] oled_data_out,
+    output bit oled_write_stb_out,
+    output bit oled_sync_stb_out,
+    input bit oled_ready_in
 );
 
     // LCD is 128x32 pixels
@@ -46,9 +46,9 @@ module data_streamer
     // stored input data / digits
     reg [4*DIGITS_NUM-1:0] digits_r;
 
-    // state machine
-    localparam S_RESET = 0, S_IDLE = 1, S_SEND_DATA = 2, S_WAIT_FOR_READY = 3, S_SEND_SYNC = 4, S_WAIT_FOR_SYNC = 5;
-    reg [2:0] state_r;
+    // state machine definition
+    typedef enum {S_RESET, S_IDLE, S_SEND_DATA, S_WAIT_FOR_READY, S_SEND_SYNC, S_WAIT_FOR_SYNC} e_state;
+    e_state state_r;
 
     always @(posedge clk_in) begin
         if (reset_in) begin
