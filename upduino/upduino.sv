@@ -73,7 +73,7 @@ module upduino (
 
 	oled_frequency_counter freq_counter
 	(
-		.clk_ref_in(clk_1M),
+		.clk_ref_in(clk_10M),
 		.reset_in(!resetn),
 
 		.clk_x_in(delay[20]),
