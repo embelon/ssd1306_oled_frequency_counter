@@ -2,7 +2,8 @@
 
 module data_streamer
 #(
-    DIGITS_NUM = 6
+    parameter DIGITS_NUM = 6,
+    localparam DEC_POINT_SIZE = $clog2(DIGITS_NUM)
 )
 (
     input bit clk_in,
@@ -10,6 +11,8 @@ module data_streamer
 
     // data interface, data to be displayed as number
     input bit [4*DIGITS_NUM-1:0] digits_in,
+    input bit [DEC_POINT_SIZE-1:0] dec_point_position_in,
+
     input bit refresh_stb_in,
     output bit ready_out,
 
@@ -133,11 +136,12 @@ module data_streamer
 
     // now translate 7 segments into pixels
     wire [7:0] pixels;
+    wire decimal_point;
 
     decoder_7seg_to_21x32pix graphical_decoder
     (
         .segments_in(segments7),
-        .dec_point_in(1'b1),
+        .dec_point_in(decimal_point),
 
         .index_x_in(x_index_r),
         .index_y_in(y_index_r),
@@ -145,6 +149,7 @@ module data_streamer
         .pixels_out(pixels)
     );
 
+    assign decimal_point = (dec_point_position_in == digit_cnt_r) && (dec_point_position_in != 0);
     assign oled_data_out = pixels;
 
 endmodule

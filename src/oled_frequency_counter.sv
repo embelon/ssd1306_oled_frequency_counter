@@ -95,6 +95,7 @@ module oled_frequency_counter
 
 		// data interface, data to be displayed as number
 		.digits_in(cnt_digits),
+		.dec_point_position_in(3'h5),
 		.refresh_stb_in(refresh_display),
 		.ready_out(streamer_ready),
 
