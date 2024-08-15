@@ -8,9 +8,9 @@ module ssd1306_microcode_rom
     localparam ADDRESS_BITS = $clog2(SIZE)
 )
 (
-    input [ADDRESS_BITS-1:0] address,
-    output [DATA_WIDTH-1:0] data,
-    output address_overflow
+    input bit [ADDRESS_BITS-1:0] address,
+    output bit [DATA_WIDTH-1:0] data,
+    output bit address_overflow
 );
 
 bit [DATA_WIDTH-1:0] rom [0:SIZE-1];
