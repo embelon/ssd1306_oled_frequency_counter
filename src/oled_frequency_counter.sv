@@ -27,7 +27,7 @@ module oled_frequency_counter
     (
         .clk_in(clk_ref_in),
         .reset_in(reset_in),
-        .enable_in(1),
+        .enable_in(1'b1),
 
         .digits_out(),
         .carry_out(state)
