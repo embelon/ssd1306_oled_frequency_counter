@@ -19,7 +19,7 @@ module shift_register
     input bit serial_in
 );
 
-parameter BIT_COUNT_WIDTH = $clog2(WIDTH+1);
+localparam BIT_COUNT_WIDTH = $clog2(WIDTH+1);
 
 reg [WIDTH-1:0] shadow_reg_r;
 reg [BIT_COUNT_WIDTH-1:0] bit_counter_r;
