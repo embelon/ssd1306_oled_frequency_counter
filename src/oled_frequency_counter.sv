@@ -14,45 +14,41 @@ module oled_frequency_counter
 	output bit oled_csn_out,
 	output bit oled_dc_out,
 	output bit oled_clk_out,
-	output bit oled_mosi_out
+	output bit oled_mosi_out,
 );
 
-	typedef enum {S_MEASURE, S_DISPLAY} e_state;
-    e_state state;
-
-	wire prescaler_carry_out;
+	wire cnt_ref_reset;
+	wire cnt_ref_enable;
+	wire cnt_ref_done;
     // clk divider to get refresh trigger
     // assuming clk_ref_in is 1MHz
     counter_bcd_Ndigits #(.DIGITS_NUM(6))
-    prescaler
+    counter_ref
     (
         .clk_in(clk_ref_in),
-        .reset_in(reset_in),
-        .enable_in(1'b1),
+        .reset_in(cnt_ref_reset),
+        .enable_in(cnt_ref_enable),
 
         .digits_out(),
-        .carry_out(prescaler_carry_out)
+        .carry_out(cnt_ref_done)
     );
-
-	assign state = prescaler_carry_out ? S_DISPLAY : S_MEASURE;
 
     wire streamer_ready;
 
-	wire cnt_reset, cnt_enable;
-	assign cnt_reset = reset_in || ((state == S_DISPLAY) && streamer_ready);
-	assign cnt_enable = (state == S_MEASURE);
+	wire cnt_x_reset;
+	wire cnt_x_enable;
 
 	localparam DIGITS_NUM = 6;
-	wire [4*DIGITS_NUM-1:0] cnt_digits;
+	wire [4*DIGITS_NUM-1:0] cnt_x_digits;
 
-	counter_bcd_Ndigits #(.DIGITS_NUM(DIGITS_NUM))
-	counter
+	counter_bcd_Ndigits_async_rst #(.DIGITS_NUM(DIGITS_NUM))
+	counter_x
 	(
 		.clk_in(clk_x_in),
-		.reset_in(cnt_reset),
-		.enable_in(cnt_enable),
+		.reset_in(cnt_x_reset),
+		.enable_in(cnt_x_enable),
 
-		.digits_out(cnt_digits), 
+		.digits_out(cnt_x_digits), 
 		.carry_out()
 	);
 
@@ -84,8 +80,7 @@ module oled_frequency_counter
 		.oled_mosi_out(oled_mosi_out)
 	);
 
-    wire refresh_display;
-    assign refresh_display = (state == S_DISPLAY);
+    reg refresh_display;
 
 	data_streamer #(.DIGITS_NUM(DIGITS_NUM))
 	streamer
@@ -94,7 +89,7 @@ module oled_frequency_counter
 		.reset_in(reset_in),
 
 		// data interface, data to be displayed as number
-		.digits_in(cnt_digits),
+		.digits_in(cnt_x_digits),
 		.dec_point_position_in(3'h5),
 		.refresh_stb_in(refresh_display),
 		.ready_out(streamer_ready),
@@ -106,5 +101,49 @@ module oled_frequency_counter
 		.oled_ready_in(oled_ready)
 	);
 
+	// state machine definition
+	typedef enum {S_IDLE, S_MEASURE, S_DISPLAY} e_state;
+    e_state state;
+
+	always @(posedge clk_ref_in) begin
+		if (reset_in) begin
+			state <= S_IDLE;
+			refresh_display <= 1'b0;
+		end else begin
+			case (state)
+				S_IDLE: begin
+					if (streamer_ready) begin
+						state <= S_MEASURE;
+					end					
+				end
+				S_MEASURE: begin
+					// measuring frequency
+					if (cnt_ref_done) begin
+						state <= S_DISPLAY;
+						refresh_display <= 1'b1;
+					end
+				end
+				S_DISPLAY: begin
+					if (refresh_display) begin
+						if (!streamer_ready) begin
+							// clear trigger flag
+							refresh_display <= 1'b0;
+						end
+					end else
+					// waiting for display to refresh result
+					if (streamer_ready) begin
+						// display refreshed
+						state <= S_IDLE;
+					end
+				end
+			endcase
+		end
+	end
+
+	assign cnt_ref_reset = reset_in || (state == S_IDLE);
+	assign cnt_ref_enable = (state == S_MEASURE);
+
+	assign cnt_x_reset = reset_in || (state == S_IDLE);
+	assign cnt_x_enable = (state == S_MEASURE);
 
 endmodule

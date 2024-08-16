@@ -1,11 +1,13 @@
 `default_nettype none
 
 module upduino (
+	// LEDs
 	output led_red,
 	output led_green,
     output led_blue,
 
-	output debugA,
+	// Unknown frequency signal
+	input clk_x_in,
 
 	// OLED
 	output oled_rstn_out,
@@ -15,6 +17,17 @@ module upduino (
 	output oled_dc_out,
 	output oled_clk_out,
 	output oled_mosi_out,
+
+	// debug
+	output dbg_8,
+	output dbg_7,
+	output dbg_6,
+	output dbg_5,
+	output dbg_4,
+	output dbg_3,
+	output dbg_2,
+	output dbg_1,
+	output dbg_0
 );
 
     wire clk_12M;
@@ -71,12 +84,15 @@ module upduino (
 
 	assign led_red = delay[23];
 
+	wire [8:0] debug;
+	assign debug[8:0] = {dbg_8, dbg_7, dbg_6, dbg_5, dbg_4, dbg_3, dbg_2, dbg_1, dbg_0};
+
 	oled_frequency_counter freq_counter
 	(
-		.clk_ref_in(clk_10M),
+		.clk_ref_in(clk_1M),
 		.reset_in(!resetn),
 
-		.clk_x_in(delay[20]),
+		.clk_x_in(clk_x_in),
 
 		// Interface to controll SSD1306 OLED Display
 		.oled_rstn_out(oled_rstn_out),
@@ -85,7 +101,7 @@ module upduino (
 		.oled_csn_out(oled_csn_out),
 		.oled_dc_out(oled_dc_out),
 		.oled_clk_out(oled_clk_out),
-		.oled_mosi_out(oled_mosi_out)
+		.oled_mosi_out(oled_mosi_out),
 	);
 	
 endmodule
