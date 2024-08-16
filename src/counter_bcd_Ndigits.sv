@@ -19,7 +19,9 @@ counter_bcd_1digit digit_0
 (
     .clk_in(clk_in),
     .reset_in(reset_in),
+
     .enable_in(enable_in),
+    .carry_in(1'b1),
 
     .digit_out(digits_out[3:0]),
     .carry_out(carry[0])
@@ -32,7 +34,9 @@ generate
         (
             .clk_in(clk_in),
             .reset_in(reset_in),
-            .enable_in(carry[g-1]),
+
+            .enable_in(enable_in),
+            .carry_in(carry[g-1]),
 
             .digit_out(digits_out[4*g+3:4*g]),
             .carry_out(carry[g])
