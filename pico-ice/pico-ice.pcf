@@ -1,0 +1,30 @@
+# 12 MHz clock
+#set_io clk          35
+
+# Onboard LEDs
+set_io led_blue     39
+set_io led_green    40
+set_io led_red      41
+
+# Frequency to be measured
+set_io clk_x_in         27
+
+# OLED
+set_io oled_vbatn_out   2
+set_io oled_vcdn_out  	46
+set_io oled_csn_out		47
+set_io oled_dc_out		45
+set_io oled_clk_out		48
+set_io oled_mosi_out	3
+set_io oled_rstn_out    44
+
+# additional io / debug
+set_io dbg_8        4
+set_io dbg_7        28
+set_io dbg_6        38
+set_io dbg_5        42
+set_io dbg_4        35
+set_io dbg_3        43
+set_io dbg_2        34
+set_io dbg_1        37
+set_io dbg_0        31
