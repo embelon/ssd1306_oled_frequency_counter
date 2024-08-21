@@ -19,7 +19,6 @@ module pico_ice (
 	output oled_mosi_out,
 
 	// debug
-	output dbg_8,
 	output dbg_7,
 	output dbg_6,
 	output dbg_5,
@@ -84,8 +83,8 @@ module pico_ice (
 
 	assign led_red = delay[23];
 
-	wire [8:0] debug;
-	assign debug[8:0] = {dbg_8, dbg_7, dbg_6, dbg_5, dbg_4, dbg_3, dbg_2, dbg_1, dbg_0};
+	wire [7:0] debug;
+	assign debug[7:0] = {dbg_7, dbg_6, dbg_5, dbg_4, dbg_3, dbg_2, dbg_1, dbg_0};
 
 	oled_frequency_counter freq_counter
 	(
