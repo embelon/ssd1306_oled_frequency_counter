@@ -1,7 +1,7 @@
 
 # ---- iCE40 Pico-ICE Board ----
 
-pico-ice.json: ../src/shift_register.sv ../src/spi.sv ../src/ssd1306_microcode_rom.sv ../src/ssd1306_microcode_exec.sv ../src/ssd1306_driver.sv ../src/counter_bcd_1digit.sv ../src/counter_bcd_Ndigits.sv ../src/counter_bcd_1digit_async_rst.sv ../src/counter_bcd_Ndigits_async_rst.sv ../src/decoder_bin_to_7seg.sv ../src/decoder_7seg_to_21x32pix.sv ../src/data_streamer.sv ../src/oled_frequency_counter.sv pico-ice.sv
+pico-ice.json: ../src/shift_register.sv ../src/spi.sv ../src/ssd1306_microcode_rom.sv ../src/ssd1306_microcode_exec.sv ../src/ssd1306_driver.sv ../src/counter_bcd_1digit.sv ../src/counter_bcd_Ndigits.sv ../src/counter_bcd_1digit_async_rst.sv ../src/counter_bcd_Ndigits_async_rst.sv ../src/decoder_bin_to_7seg.sv ../src/decoder_7seg_to_21x32pix.sv ../src/data_streamer.sv ../src/oled_frequency_counter.sv pico_ice.sv
 	yosys -ql pico-ice.log -p 'synth_ice40 -top pico_ice -json pico-ice.json' $^
 
 pico-ice.asc: pico-ice.pcf pico-ice.json

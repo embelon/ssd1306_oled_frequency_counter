@@ -14,7 +14,10 @@ module oled_frequency_counter
 	output bit oled_csn_out,
 	output bit oled_dc_out,
 	output bit oled_clk_out,
-	output bit oled_mosi_out,
+	output bit oled_mosi_out
+
+	// Debug interface
+	// output bit [7:0] debug_out
 );
 
 	wire cnt_ref_reset;
@@ -90,7 +93,7 @@ module oled_frequency_counter
 
 		// data interface, data to be displayed as number
 		.digits_in(cnt_x_digits),
-		.dec_point_position_in(3'h5),
+		.dec_point_position_in(3'h3),
 		.refresh_stb_in(refresh_display),
 		.ready_out(streamer_ready),
 
@@ -145,5 +148,7 @@ module oled_frequency_counter
 
 	assign cnt_x_reset = reset_in || (state == S_IDLE);
 	assign cnt_x_enable = (state == S_MEASURE);
+
+	// assign debug_out[4:0] = {refresh_display, streamer_ready, cnt_ref_done, clk_x_in, cnt_x_enable};
 
 endmodule

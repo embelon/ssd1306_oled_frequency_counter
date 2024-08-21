@@ -101,7 +101,10 @@ module upduino (
 		.oled_csn_out(oled_csn_out),
 		.oled_dc_out(oled_dc_out),
 		.oled_clk_out(oled_clk_out),
-		.oled_mosi_out(oled_mosi_out),
+		.oled_mosi_out(oled_mosi_out)
+
+		// Debug interface
+		// .debug_out(debug[7:0])
 	);
 	
 endmodule
