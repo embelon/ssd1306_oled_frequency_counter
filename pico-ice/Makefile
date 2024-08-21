@@ -14,6 +14,9 @@ pico-ice.bin: pico-ice.asc
 prog: pico-ice.bin
 	dfu-util --alt 1 --download pico-ice.bin --device 1209:b1c0
 
+lint: pico-ice.json
+	verilator --lint-only --top pico_ice -I../src pico_ice.sv
+
 # ---- Clean ----
 
 clean:
