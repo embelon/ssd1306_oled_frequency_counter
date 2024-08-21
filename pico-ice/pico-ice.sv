@@ -103,7 +103,7 @@ module pico_ice (
 		.oled_mosi_out(oled_mosi_out),
 
 		// Debug interface
-		.debug_out(debug[7:0])
+		// .debug_out(debug[7:0])
 	);
 	
 endmodule
