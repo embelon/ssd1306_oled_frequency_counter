@@ -24,7 +24,7 @@ localparam BIT_COUNT_WIDTH = $clog2(WIDTH+1);
 reg [WIDTH-1:0] shadow_reg_r;
 reg [BIT_COUNT_WIDTH-1:0] bit_counter_r;
 
-assign ready_out = !|bit_counter_r & !reset_in;
+assign ready_out = !(|bit_counter_r) & !reset_in;
 
 always @(posedge clk_in) begin
     if (reset_in) begin

@@ -145,7 +145,7 @@ always @(posedge clk_in) begin
                 end
             end
             S_DELAY: begin
-                if (!|delay_cnt) begin
+                if (!(|delay_cnt)) begin
                     state_r <= S_RETIRE;
                 end
                 delay_cnt <= delay_cnt - 1;
