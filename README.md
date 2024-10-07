@@ -4,7 +4,7 @@
 
 ### 1. Block diagram
 
-Frequency counter is build from few components:
+Frequency counter is built from few components:
 - one 6-digit BCD counter with asynchronous reset, which counts pulses from clk_x, unknown frequency signal
 - one 6-digit BCD counter with synchronous reset, which counts pusles from clk_ref, known frequency signal, that is used as a reference and defines measurement period
 - SSD1306 Driver, responsible for communication with and initialization of SSD1306-based OLED over SPI interface
