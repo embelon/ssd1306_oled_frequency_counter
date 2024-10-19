@@ -48,6 +48,8 @@ Counter is instantiated as N-digits counter (with parameter N set to 6), which r
 
 #### 2.2.2. Data Streamer State Machine's State Diagram
 
+<img src="docs/diagrams/Data Streamer State Machine.drawio.svg">
+
 #### 2.2.3. BCD to 7-segment Decoder
 
 It's simple, combinatorial only, converter from 4 bits to 7 bits that are representing segments of 7-segment display {g, f, e, d, c, b, a}.
