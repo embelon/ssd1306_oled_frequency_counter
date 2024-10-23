@@ -70,6 +70,8 @@ This decoder is transforming 7 bits that are representing segments of 7-segment 
 
 #### 2.3.2 SSD1306 Driver State Machine's State Diagram
 
+<img src="docs/diagrams/SSD1306 Driver State Machine.drawio.svg">
+
 #### 2.3.3. SPI Controller
 
 ##### 2.3.3.1. Block Diagram
