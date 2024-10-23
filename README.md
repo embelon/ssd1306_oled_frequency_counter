@@ -66,9 +66,13 @@ This decoder is transforming 7 bits that are representing segments of 7-segment 
 
 #### 2.3.1. Block Diagram
 
-#### 2.3.2. SPI Controller
+<img src="docs/diagrams/SSD1306 Driver Block Diagram.drawio.svg">
 
-##### 2.3.2.1. Block Diagram
+#### 2.3.2 SSD1306 Driver State Machine's State Diagram
+
+#### 2.3.3. SPI Controller
+
+##### 2.3.3.1. Block Diagram
 
 SPI Controller is built upon simple Shift Register with help of State Machine.
 - Shift Register controls 2 out of 3 SPI output signals: MOSI and SCK while transmitting data out and reads back SPI input: MISO.
@@ -76,7 +80,7 @@ SPI Controller is built upon simple Shift Register with help of State Machine.
 
 <img src="docs/diagrams/SPI.drawio.svg">
 
-##### 2.3.2.2. SPI State Machine's State Diagram
+##### 2.3.3.2. SPI State Machine's State Diagram
 
 SPI can be only in 1 of 3 states:
 - IDLE - not doing anything, waiting for new transfer request (activation of tx_start_in). On transition to Trigger state, activates CS (select_out).
@@ -85,7 +89,7 @@ SPI can be only in 1 of 3 states:
 
 <img src="docs/diagrams/SPI State Machine.drawio.svg">
 
-##### 2.3.2.3. Shift Register's Logic Diagram
+##### 2.3.3.3. Shift Register's Logic Diagram
 
 Shift Register internal logic is build from several DFFs, multiplexers, one adder, one comparator and few logic gates as depicted below. Those components can be divided into 3 groups:
 - Bit Counter - responsible for counting bits that are output on serial_out during clock pulses, that helps mark the end of the transmission (ready_out)
