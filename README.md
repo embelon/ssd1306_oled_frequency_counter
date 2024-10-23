@@ -46,6 +46,8 @@ Counter is instantiated as N-digits counter (with parameter N set to 6), which r
 
 #### 2.2.1. Block Diagram
 
+<img src="docs/diagrams/Data Streamer Block Diagram.drawio.svg">
+
 #### 2.2.2. Data Streamer State Machine's State Diagram
 
 <img src="docs/diagrams/Data Streamer State Machine.drawio.svg">
