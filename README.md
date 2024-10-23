@@ -46,21 +46,28 @@ Counter is instantiated as N-digits counter (with parameter N set to 6), which r
 
 #### 2.2.1. Block Diagram
 
-Data Streamer is responsible for converting 6-digits BCD input value (digits_in) to stream of bytes representing 6-digit decimal value, where each decimal digit is displayed on 21 x 32 pixels area.
+Data Streamer is responsible for converting 6-digits BCD input value (digits_in) to a stream of bytes representing 6-digit decimal value, where each decimal digit is displayed on 21 x 32 pixels area.
 It's built from:
 - Digits Counter, iterating over all digits (from 5th down to 0th)
-- Y Counter, iterating over Y axis (4 rows, each 8 bits tall, as streamer is outputing 8 bits at once) 
+- Y Counter, iterating over Y axis (4 rows, each 8 bits tall, as streamer is outputting 8 bits at once) 
 - X Counter, iterating over X axis (21 columns)
 - Binary to 7 Segments Decoder
 - 7 Segments to 21x32 pixels Decoder
 - State Machine, that synchronizes all blocks with external components (i.e. SSD1306 Driver)
 
-Driving input refresh_stb_in high triggers stream of 504 bytes (6 digits * 21 pixels * 4 bytes per colums) of data on oled_data_out output followed by driving output oled_sync_stb_out to trigger SSD1306 driver to drive internal LCD counter back to first column and first row.
+Driving input refresh_stb_in high triggers stream of 504 bytes (6 digits * 21 pixels * 4 bytes per columns) of data on oled_data_out output followed by driving output oled_sync_stb_out to trigger OLED driver to drive internal LCD counter back to first column and first row.
 
 
 <img src="docs/diagrams/Data Streamer Block Diagram.drawio.svg">
 
 #### 2.2.2. Data Streamer State Machine's State Diagram
+
+Data Streamer can be in 1 of 5 states:
+- IDLE - not doing anything, waiting for new transfer request (activation of refresh_stb_in).
+- SEND_DATA - outputting one byte of data, representing a part of a column (1/4th) with 8 pixels.
+- WAIT_FOR_READY - waiting for OLED Driver to finish transmission of data. When OLED Driver becomes ready, then transition to SEND_SYNC if all bytes for all digits were sent or to SEND_DATA otherwise to output next byte to be displayed.
+- SEND_SYNC - driving oled_sync_stb output to trigger OLED Driver to send sync command to go back to first column and first row. Transitions to WAIT_FOR_SYNC after acknowledgment from OLED Driver.
+- WAIT_FOR_SYNC - waiting for OLED Driver to finish sync command. Transitions to IDLE, when OLED Driver becomes ready to accept new data.
 
 <img src="docs/diagrams/Data Streamer State Machine.drawio.svg">
 
