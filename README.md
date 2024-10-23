@@ -46,6 +46,18 @@ Counter is instantiated as N-digits counter (with parameter N set to 6), which r
 
 #### 2.2.1. Block Diagram
 
+Data Streamer is responsible for converting 6-digits BCD input value (digits_in) to stream of bytes representing 6-digit decimal value, where each decimal digit is displayed on 21 x 32 pixels area.
+It's built from:
+- Digits Counter, iterating over all digits (from 5th down to 0th)
+- Y Counter, iterating over Y axis (4 rows, each 8 bits tall, as streamer is outputing 8 bits at once) 
+- X Counter, iterating over X axis (21 columns)
+- Binary to 7 Segments Decoder
+- 7 Segments to 21x32 pixels Decoder
+- State Machine, that synchronizes all blocks with external components (i.e. SSD1306 Driver)
+
+Driving input refresh_stb_in high triggers stream of 504 bytes (6 digits * 21 pixels * 4 bytes per colums) of data on oled_data_out output followed by driving output oled_sync_stb_out to trigger SSD1306 driver to drive internal LCD counter back to first column and first row.
+
+
 <img src="docs/diagrams/Data Streamer Block Diagram.drawio.svg">
 
 #### 2.2.2. Data Streamer State Machine's State Diagram
