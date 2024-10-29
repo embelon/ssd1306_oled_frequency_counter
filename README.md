@@ -159,9 +159,40 @@ This LUT is result of combining two LUTs together to not waste resources:
 
 <img src="docs/diagrams/SSD1306 Driver State Machine.drawio.svg">
 
-#### 2.3.3. SPI Controller
+#### 2.3.3. Microcode execution unit
 
-##### 2.3.3.1. Block Diagram
+The Microcode execution unit stores procedures in forms of sequences of simple intructions.
+Currently it provides only:
+- initialization sequence for SSD1306 display driver, used once after reset
+- synchronization sequence used to drive SSD1306 display driver back to point (0,0)
+
+There are 5 internally interpreted commands implemented in addition to sending data over SPI.
+All commands / opcodes are listed below.
+
+| Command | Bit 9 (Interpreted command) | Bit 8 (Deactivate CS after) | Bits 7-0 (Command Opcode and Parameter) |
+| --- | --- | --- | --- |
+| SPI_SEND Y and leave CS low | 0 | 0 | 8b'YYYY_YYYY |
+| SPI_SEND Y and drive CS high after | 0 | 1 | 8b'YYYY_YYYY |
+| GOTO Y (absolute 7 bit index) | 1 | x (Don't care) | 8'b1YYY_YYYY |
+| DELAY Y | 1 | x (Don't care) | 8'b01YY_YYYY |
+| SET_PIN P to state S | 1 | x (Don't care) | 8'b0010_PPxS |
+| STOP | 1 | x (Don't care) | 8'b0000_0001 |
+| NOP | 1 | x (Don't care) | 8'b0000_0000 |
+
+The SET_PIN command is able to drive one of four pins:
+
+| Pin name | Pin index (P) |
+| --- | --- |
+| RESET | 2'b00 |
+| VBATN | 2'b01 |
+| VCDN | 2'b10 |
+| DC (Data / command) | 2'b11 |
+
+Pins RESET, VBATN, VCDN are being driven only during SSD1306 initialization sequence.
+
+#### 2.3.4. SPI Controller
+
+##### 2.3.4.1. Block Diagram
 
 SPI Controller is built upon simple Shift Register with help of State Machine.
 - Shift Register controls 2 out of 3 SPI output signals: MOSI and SCK while transmitting data out and reads back SPI input: MISO.
@@ -169,7 +200,7 @@ SPI Controller is built upon simple Shift Register with help of State Machine.
 
 <img src="docs/diagrams/SPI.drawio.svg">
 
-##### 2.3.3.2. SPI State Machine's State Diagram
+##### 2.3.4.2. SPI State Machine's State Diagram
 
 SPI can be only in 1 of 3 states:
 - IDLE - not doing anything, waiting for new transfer request (activation of tx_start_in). On transition to Trigger state, activates CS (select_out).
@@ -178,7 +209,7 @@ SPI can be only in 1 of 3 states:
 
 <img src="docs/diagrams/SPI State Machine.drawio.svg">
 
-##### 2.3.3.3. Shift Register's Logic Diagram
+##### 2.3.4.3. Shift Register's Logic Diagram
 
 Shift Register internal logic is build from several DFFs, multiplexers, one adder, one comparator and few logic gates as depicted below. Those components can be divided into 3 groups:
 - Bit Counter - responsible for counting bits that are output on serial_out during clock pulses, that helps mark the end of the transmission (ready_out)
