@@ -10,10 +10,6 @@
 //      CMD_SET_PIN -> 8'b0010_PP0S, where PP is pin index, S is state to be set
 //      CMD_STOP    -> 8'b0000_0001
 //      CMD_NOP     -> 8'b0000_0000
-//      CMD_SET_RESET = 0'b0001_xxxS, where S is state to be set  
-//      CMD_SET_VBAT = 0'b0010_xxxS, where S is state to be set 
-//      CMD_DELAY = 0'b0011_dddd, where dddd is delay 
-//      CMD_STOP = 0'b1111_****, where **** is don't care
 // 0_XY (hex) means non-last byte of value XY to be sent to SSD1306 controller over SPI (non-last means that CS should stay activated)
 // 1_XY (hex) means last byte of value XY to be sent to SSD1306 with CS deactivated shortly after transmission
 @0  2_20    // Reset ON (drive low)
