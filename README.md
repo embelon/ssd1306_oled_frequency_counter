@@ -1,5 +1,16 @@
 # SSD1306 OLED Frequency Counter
 
+This is simple hardware implementation of Frequency Counter that displays result on 128 x 32 pixel OLED display with the SSD1306 driver:
+[PMOD OLED](https://digilent.com/reference/pmod/pmodoled/start).
+
+It was tested on Upduino 2 and Pico-ICE boards, both based on ICE40UP5K FPGA, supported by Open Source tools: Yosys and nextpnr.
+
+Measured frequency is presented as 6 decimal digits, each being 21 pixels (128 pixels / 6 digits) wide.
+
+This is the view of the display with all "segments" on for all digits:
+<img src="docs/screenshots/128x32pix Display.png">
+Note, the display is not able to display colors, orange and green background on above picture is added to mark squares of 8 x 8 pixels.
+
 ## 1. Top Level Design
 
 ### 1.1. Block diagram
@@ -79,9 +90,64 @@ It's simple, combinatorial only, converter from 4 bits to 7 bits that are repres
 
 #### 2.2.4. 7-segment to 21x32 pixels Decoder
 
-This decoder is transforming 7 bits that are representing segments of 7-segment display into several (21 x 32 / 8 = 84) bytes forming enlarged 7-segment digit over 21 x 32 pixels area.
-
+This decoder is transforming 7 bits that are representing segments of 7-segment display into several (21 x 32 / 8 = 84) bytes forming enlarged 7-segment digit over 21 x 32 pixels area:
 <img src="docs/screenshots/21x32pix Digit Big.png">
+
+Each column is represented by 32 bits, 4 bytes and display is configured to accept data in columns.
+
+Internally the decoder uses two LUTs, one for segments B, C, E, F and one for segments A, D, G.
+
+The LUT for segments B, C, E, F is storing only values for segment F, but decoder uses simple transformations to generate also segments B, C and E (which are symmetrical in X or Y):
+
+| X = | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Y = 0 | 8'h00 | 8'h00 | 8'hf0 | 8'hf8 | 8'hf0 | 8'he0 | 8'h00 | 8'h00 |
+| Y = 1 | 8'h00 | 8'h00 | 8'h3f | 8'h7f | 8'h3f | 8'h1f | 8'h00 | 8'h00 |
+
+Each 8 bit value represents one column (8 bit tall) to form segment F:
+
+<img src="docs/screenshots/16x8pix Segment F.png">
+
+As segments B, C, E, F are vertical, they are being displayed on 2 (out of 4 total) bytes of height.
+
+The LUT for segments A, D, G is storing values for segment A and half of segment G, but with simple transformation is used to generate also segment D (which is symmetrical to A):
+
+| X | Value (A + G) |
+| --- | --- |
+| 0 | 8'h00 |
+| 1 | 8'h00 |
+| 2 | 8'h00 |
+| 3 | 8'h00 |
+| 4 | 8'h02 + 8'h00 |
+| 5 | 8'h06 + 8'h80 |
+| 6 | 8'h0e + 8'hc0 |
+| 7 | 8'h1e + 8'hc0 |
+| 8 | 8'h1e + 8'hc0 |
+| 9 | 8'h1e + 8'hc0 |
+| 10 | 8'h1e + 8'hc0 |
+| 11 | 8'h1e + 8'hc0 |
+| 12 | 8'h1e + 8'hc0 |
+| 13 | 8'h0e + 8'hc0 |
+| 14 | 8'h06 + 8'h80 |
+| 15 | 8'h02 + 8'h00 |
+| 16 | 8'h00 |
+| 17 | 8'h00 |
+| 18 | 8'h00 |
+| 19 | 8'h00 |
+
+Each 8 bit value represents one colum (8 bit tall) to form segments A (upper part) and half of G (lower part):
+
+<img src="docs/screenshots/21x8pix Segments A and G.png">
+
+
+This LUT is result of combining two LUTs together to not waste resources:
+- for segment A
+
+<img src="docs/screenshots/21x8pix Segment A.png">
+
+- for half a segment G
+
+<img src="docs/screenshots/21x8pix Segment G.png">
 
 ### 2.3. SSD1306 Driver
 
