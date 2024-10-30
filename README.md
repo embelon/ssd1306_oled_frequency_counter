@@ -151,11 +151,21 @@ This LUT is result of combining two LUTs together to not waste resources:
 
 ### 2.3. SSD1306 Driver
 
+The SSD1306 Driver module is responsible for initialization of OLED Display (and it's internal controller IC) after each reset and updating displayed image afterwards. Initialization sequence is encoded in form of micro-operations (microcode) and executed by Microcode Execution Unit. In microcode there's also a sequence of operations used to set the initial address for the data to be displayed (point 0,0) - it's executed everytime sync_stb_in is activated.
+
 #### 2.3.1. Block Diagram
 
 <img src="docs/diagrams/SSD1306 Driver Block Diagram.drawio.svg">
 
 #### 2.3.2 SSD1306 Driver State Machine's State Diagram
+
+SSD1306 Driver has 6 states it can be in:
+- RESET_WAIT - not doing anything except waiting for both Microcode Execution Unit and SPI Driver to become ready after reset and then transitions to MC_EXEC
+- MC_EXEC - activating Microcode Execution Unit and transitions to MC_WAIT after Micorcode Execution Unit acknowledges activation (by becoming not ready)
+- MC_WAIT - waiting for Microcode Execution Unit to become ready (which means that init sequence (defined in microcode) was successfully executed and display is ready to accept data) and then transitions to IDLE
+- IDLE - not doing anything, waiting for new data transfer request (activation of write_stb_in) or synchronization request (activation of sync_stb_in). In case of data transfer request, transitions to SEND_DATA, in case of synchronization request, sets microcode index to 33 (8'b21) and transitions to MC_EXEC.
+- SEND_DATA - activating SPI Driver with data received on input and waiting for SPI Driver acknowledgement, then transitions to DATA_WAIT
+- DATA_WAIT - waiting for SPI Driver finishing transmission of data, then transitions to IDLE
 
 <img src="docs/diagrams/SSD1306 Driver State Machine.drawio.svg">
 
@@ -163,8 +173,8 @@ This LUT is result of combining two LUTs together to not waste resources:
 
 The Microcode execution unit stores procedures in forms of sequences of simple intructions.
 Currently it provides only:
-- initialization sequence for SSD1306 display driver, used once after reset
-- synchronization sequence used to drive SSD1306 display driver back to point (0,0)
+- initialization sequence for SSD1306 display driver, used once after reset - starting at offset 0
+- synchronization sequence used to drive SSD1306 display driver back to point (0,0) - starting at offset 33 (8'h21)
 
 There are 5 internally interpreted commands implemented in addition to sending data over SPI.
 All commands / opcodes are listed below.
